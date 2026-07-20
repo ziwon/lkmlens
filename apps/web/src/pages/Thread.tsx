@@ -98,15 +98,12 @@ export default function Thread() {
 
       <section className="mt-8">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">PRODUCT READINESS</p>
-            <h2 className="mt-1 text-lg font-semibold text-slate-950 dark:text-white">Observed integration path</h2>
-          </div>
+          <h2 className="text-lg font-semibold text-slate-950 dark:text-white">Mainline &amp; stable status</h2>
           <Link to="/about/methodology" className="text-xs text-slate-500 hover:text-emerald-700 dark:hover:text-emerald-400">How evidence is verified →</Link>
         </div>
         <LifecycleRail lifecycle={lifecycle} reviewSignals={reviewSignals} submittedAt={thread.firstPostedAt} />
         <p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-500">
-          Missing milestones mean LKMLens has not observed public evidence. They do not imply rejection or absence from a private BSP.
+          “Not observed” means LKMLens has not found public mainline or stable evidence. It does not imply rejection or absence from a private BSP.
           {lifecycle?.checkedAt && ` Last checked ${lifecycle.checkedAt}.`}
         </p>
       </section>
