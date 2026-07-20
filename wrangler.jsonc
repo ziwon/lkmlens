@@ -9,6 +9,12 @@
     "logs": { "head_sampling_rate": 1 },
     "traces": { "enabled": true, "head_sampling_rate": 0.05 }
   },
+  "vars": {
+    "AI_PROVIDER": "google-gemini",
+    "AI_MODEL": "gemini-3.1-flash-lite",
+    "AI_DAILY_REQUEST_LIMIT": "100",
+    "AI_WARNING_PERCENT": "80"
+  },
   "d1_databases": [
     {
       "binding": "DB",

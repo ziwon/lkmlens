@@ -5,6 +5,9 @@
   "compatibility_date": "2026-07-20",
   "compatibility_flags": ["nodejs_compat"],
   "triggers": { "crons": ["17 * * * *"] },
+  "secrets": {
+    "required": ["GEMINI_API_KEY"]
+  },
   "d1_databases": [
     {
       "binding": "DB",
@@ -13,7 +16,11 @@
       "migrations_dir": "../../migrations"
     }
   ],
-  "ai": { "binding": "AI" },
+  "vars": {
+    "GEMINI_MODEL": "gemini-3.1-flash-lite",
+    "AI_DAILY_REQUEST_LIMIT": "100",
+    "AI_WARNING_PERCENT": "80"
+  },
   "observability": {
     "enabled": true,
     "logs": { "head_sampling_rate": 1 },

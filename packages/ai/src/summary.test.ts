@@ -33,11 +33,12 @@ describe("evidence-linked summaries", () => {
 
   it("runs a provider and records provenance", async () => {
     const result = await generateEvidenceLinkedSummary(
-      { model: "test-model", generateJson: async () => valid },
+      { model: "test-model", generateJson: async () => ({ data: valid, inputTokens: 10, outputTokens: 20 }) },
       { threadId: 1, subject: "Patch", messages: [{ messageId: "m1", authorName: "A", postedAt: null, sourceUrl: urls.get("m1")!, bodyText: "body" }] },
     );
     expect(result.model).toBe("test-model");
     expect(result.sourceSetChecksum).toHaveLength(64);
+    expect(result.outputTokens).toBe(20);
   });
 
   it("removes display-only claim markers", () => {

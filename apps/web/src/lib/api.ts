@@ -1,5 +1,5 @@
 import type { SearchResultRow, ThreadDetail } from "@lkmlens/db";
-import type { Digest, DigestPeriod, Topic } from "@lkmlens/shared";
+import type { AiUsageStatus, Digest, DigestPeriod, Topic } from "@lkmlens/shared";
 
 export async function fetchTopics(): Promise<Topic[]> {
   const res = await fetch("/api/topics");
@@ -35,4 +35,10 @@ export async function fetchDigest(period: DigestPeriod, key: string): Promise<Di
   if (res.status === 404) throw new Error("not-found");
   if (!res.ok) throw new Error(`GET digest failed: ${res.status}`);
   return (await res.json()) as Digest;
+}
+
+export async function fetchAiUsageStatus(): Promise<AiUsageStatus> {
+  const res = await fetch("/api/ai/status");
+  if (!res.ok) throw new Error(`GET /api/ai/status failed: ${res.status}`);
+  return (await res.json()) as AiUsageStatus;
 }

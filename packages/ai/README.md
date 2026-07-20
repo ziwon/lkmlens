@@ -1,8 +1,9 @@
-# @lkmlens/ai (planned)
+# @lkmlens/ai
 
-Model-provider abstraction for evidence-linked thread summaries (Workers AI,
-OpenAI, or another provider behind a common interface). Output must follow
-the summary contract in the project planning doc (kept locally, not published)
-section 11, including model id, prompt version, and source message IDs.
+Provider-neutral contracts for evidence-linked thread summaries and digest
+composition. The package builds bounded prompts, validates claim-to-message
+evidence, records model/prompt/source provenance, and leaves provider transport
+to the scheduled summarizer Worker.
 
-Not yet implemented — deferred to Phase 3 (Evidence-linked AI summaries).
+The current provider implementation is Gemini 3.1 Flash-Lite in
+`workers/summarizer`.

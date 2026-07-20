@@ -13,7 +13,13 @@ export interface SummarySource {
 
 export interface SummaryProvider {
   model: string;
-  generateJson(prompt: string): Promise<unknown>;
+  generateJson(prompt: string): Promise<ProviderGeneration>;
+}
+
+export interface ProviderGeneration {
+  data: unknown;
+  inputTokens: number;
+  outputTokens: number;
 }
 
 export interface GeneratedSummary {
@@ -22,6 +28,8 @@ export interface GeneratedSummary {
   promptVersion: string;
   sourceMessageIds: string[];
   sourceSetChecksum: string;
+  inputTokens: number;
+  outputTokens: number;
 }
 
 function boundedSources(messages: SummarySource["messages"]): string {
@@ -142,14 +150,16 @@ export async function generateEvidenceLinkedSummary(
   provider: SummaryProvider,
   source: SummarySource,
 ): Promise<GeneratedSummary> {
-  const raw = await provider.generateJson(buildSummaryPrompt(source));
+  const generated = await provider.generateJson(buildSummaryPrompt(source));
   const allowed = new Map(source.messages.map((message) => [message.messageId, message.sourceUrl]));
   return {
-    content: validateSummaryContent(raw, allowed),
+    content: validateSummaryContent(generated.data, allowed),
     model: provider.model,
     promptVersion: SUMMARY_PROMPT_VERSION,
     sourceMessageIds: source.messages.map((message) => message.messageId),
     sourceSetChecksum: await checksumSourceSet(source.messages),
+    inputTokens: generated.inputTokens,
+    outputTokens: generated.outputTokens,
   };
 }
 

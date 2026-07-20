@@ -203,6 +203,24 @@ export interface Summary {
   sourceSetChecksum: string | null;
 }
 
+export type AiQuotaState = "normal" | "warning" | "exhausted";
+
+export interface AiUsageStatus {
+  usageDate: string;
+  provider: string;
+  model: string;
+  dailyRequestLimit: number;
+  requestCount: number;
+  successCount: number;
+  failureCount: number;
+  inputTokens: number;
+  outputTokens: number;
+  remainingRequests: number;
+  usagePercent: number;
+  state: AiQuotaState;
+  resetAt: string;
+}
+
 export type DigestPeriod = "daily" | "weekly";
 
 export interface DigestThreadItem {

@@ -1,45 +1,51 @@
-import { generateEvidenceLinkedSummary, SUMMARY_PROMPT_VERSION, type SummaryProvider } from "@lkmlens/ai";
-import { getThreadById, listSummaryCandidates, saveCurrentSummary } from "@lkmlens/db";
+import { generateEvidenceLinkedSummary, SUMMARY_PROMPT_VERSION } from "@lkmlens/ai";
+import {
+  getThreadById,
+  listSummaryCandidates,
+  recordAiFailure,
+  recordAiSuccess,
+  reserveAiRequest,
+  saveCurrentSummary,
+} from "@lkmlens/db";
+import { createGeminiProvider, GeminiApiError } from "./gemini.js";
 
-const MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast" as const;
 const MAX_PER_RUN = 5;
+const PROVIDER = "google-gemini";
 
-function createProvider(ai: Ai): SummaryProvider {
-  return {
-    model: MODEL,
-    async generateJson(prompt) {
-      const output = await ai.run(MODEL, {
-        prompt,
-        response_format: { type: "json_object" },
-        temperature: 0.1,
-        max_tokens: 2_048,
-      });
-      const text = typeof output === "string" ? output : "response" in output ? output.response : null;
-      if (typeof text !== "string") throw new Error("Workers AI returned no text response");
-      return JSON.parse(text) as unknown;
-    },
-  };
+function positiveInteger(value: string, fallback: number): number {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
 async function runSummaries(env: Env): Promise<{ generated: number; failed: number }> {
+  const model = env.GEMINI_MODEL;
+  const dailyLimit = positiveInteger(env.AI_DAILY_REQUEST_LIMIT, 100);
   const candidates = await listSummaryCandidates(env.DB, {
     limit: MAX_PER_RUN,
-    model: MODEL,
+    model,
     promptVersion: SUMMARY_PROMPT_VERSION,
   });
-  const provider = createProvider(env.AI);
+  const provider = createGeminiProvider(env.GEMINI_API_KEY, model);
   let generated = 0;
   let failed = 0;
 
   for (const candidate of candidates) {
+    const detail = await getThreadById(env.DB, candidate.threadId);
+    if (!detail) continue;
+    const reserved = await reserveAiRequest(env.DB, PROVIDER, model, dailyLimit);
+    if (!reserved) {
+      console.log(JSON.stringify({ event: "ai_daily_budget_reached", provider: PROVIDER, model, dailyLimit }));
+      break;
+    }
+    let aiCompleted = false;
     try {
-      const detail = await getThreadById(env.DB, candidate.threadId);
-      if (!detail) continue;
       const summary = await generateEvidenceLinkedSummary(provider, {
         threadId: detail.thread.id,
         subject: detail.thread.displaySubject,
         messages: detail.messages,
       });
+      await recordAiSuccess(env.DB, PROVIDER, model, summary.inputTokens, summary.outputTokens);
+      aiCompleted = true;
       // Review trailers are deterministic evidence; never trust the model to
       // invent or normalize them independently.
       summary.content.explicitSignals = detail.reviewSignals.map((signal) => ({
@@ -50,13 +56,25 @@ async function runSummaries(env: Env): Promise<{ generated: number; failed: numb
       }));
       await saveCurrentSummary(env.DB, { threadId: detail.thread.id, ...summary });
       generated += 1;
-      console.log(JSON.stringify({ event: "summary_generated", threadId: detail.thread.id, model: MODEL }));
+      console.log(JSON.stringify({
+        event: "summary_generated",
+        threadId: detail.thread.id,
+        model,
+        inputTokens: summary.inputTokens,
+        outputTokens: summary.outputTokens,
+      }));
     } catch (error) {
       failed += 1;
+      const quotaExhausted = error instanceof GeminiApiError && error.quotaExhausted;
+      const message = error instanceof Error ? error.message : String(error);
+      if (!aiCompleted) {
+        await recordAiFailure(env.DB, PROVIDER, model, message, quotaExhausted);
+      }
       console.error(JSON.stringify({
         event: "summary_failed",
         threadId: candidate.threadId,
-        error: error instanceof Error ? error.message : String(error),
+        quotaExhausted,
+        error: message,
       }));
     }
   }
@@ -68,6 +86,6 @@ export default {
     ctx.waitUntil(runSummaries(env));
   },
   async fetch(): Promise<Response> {
-    return Response.json({ service: "lkmlens-summarizer", status: "ok" });
+    return Response.json({ service: "lkmlens-summarizer", provider: PROVIDER, status: "ok" });
   },
 } satisfies ExportedHandler<Env>;
