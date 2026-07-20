@@ -67,4 +67,14 @@ describe("parseMessage — real lore.kernel.org samples", () => {
     // Sanity check the raw fixture actually contains the encoded word we're testing against.
     expect(raw).toContain("=?ISO-8859-1?Q?Bj=F6rn?=");
   });
+
+  it("extracts the mailing list from a List-Id with a folded human-readable description (RFC 2919)", () => {
+    // Real, verbatim folded header from a lore.kernel.org dri-devel message:
+    // the description is on one line, the bracketed list-id on the next.
+    const msg = parseMessage(
+      "Subject: test\nMessage-Id: <a@x>\nList-Id: Direct Rendering Infrastructure - Development\n" +
+        " <dri-devel.lists.freedesktop.org>\n\nbody",
+    );
+    expect(msg.mailingList).toBe("dri-devel");
+  });
 });

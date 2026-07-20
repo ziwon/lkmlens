@@ -35,6 +35,12 @@ const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MIRROR_BASE_DIR = join(REPO_ROOT, ".data", "mirrors");
 const DEFAULT_MAX_INITIAL_MESSAGES = 200;
 const DEFAULT_SHALLOW_SINCE_DAYS = 30;
+// Some patch emails carry huge diffs or embedded binary blobs (seen up to
+// ~450KB raw on dri-devel) that trip D1/SQLite's per-statement size limit
+// ("statement too long: SQLITE_TOOBIG") and add little FTS relevance beyond
+// this point anyway. Large raw bodies are a good fit for R2 later
+// (docs/PLANNING.md section 7.7); for now, cap what goes into D1.
+const MAX_BODY_CHARS = 20_000;
 
 interface Args {
   inbox: string;
@@ -97,8 +103,13 @@ ON CONFLICT(root_message_id) DO UPDATE SET
   message_count = threads.message_count + excluded.message_count;`;
 }
 
+function truncateBody(bodyText: string): string {
+  if (bodyText.length <= MAX_BODY_CHARS) return bodyText;
+  return `${bodyText.slice(0, MAX_BODY_CHARS)}\n\n[... truncated, ${bodyText.length - MAX_BODY_CHARS} more characters]`;
+}
+
 function buildMessageSql(parsed: ParsedMessage, rootMessageId: string, isThreadRoot: boolean, inbox: string): string {
-  const body = parsed.bodyText;
+  const body = truncateBody(parsed.bodyText);
   const checksum = createHash("sha256").update(body).digest("hex");
   return `
 INSERT INTO messages (

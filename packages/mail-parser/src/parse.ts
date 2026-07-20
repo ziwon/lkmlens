@@ -51,7 +51,14 @@ function parseAddress(value: string | undefined): ParsedAddress | null {
 
 function parseMailingList(listId: string | undefined): string | null {
   if (!listId) return null;
-  const inner = stripAngleBrackets(listId.trim());
+  // RFC 2919: `List-Id: Human-readable description <list-id-string>` — the
+  // bracketed id can be preceded by an arbitrary description (verified
+  // against a real folded dri-devel header: "Direct Rendering
+  // Infrastructure - Development <dri-devel.lists.freedesktop.org>"), so
+  // extract the bracketed part specifically rather than trimming the ends
+  // of the whole header value.
+  const bracketed = /<([^<>]+)>/.exec(listId);
+  const inner = (bracketed?.[1] ?? listId).trim();
   const dot = inner.indexOf(".");
   return dot === -1 ? inner || null : inner.slice(0, dot);
 }
