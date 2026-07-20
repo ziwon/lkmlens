@@ -29,6 +29,7 @@ describe("inferImpact", () => {
     );
 
     expect(result.affectedLayers).toEqual(["Kernel driver / DSP firmware interface"]);
+    expect(result.vendors).toEqual(["Qualcomm"]);
     expect(result.likelyStakeholders.sort()).toEqual(
       ["Device bring-up engineers", "Qualcomm platform integrators"].sort(),
     );
@@ -76,6 +77,7 @@ describe("inferImpact", () => {
     ]);
 
     expect(result.affectedLayers).toEqual([]);
+    expect(result.vendors).toEqual([]);
     expect(result.likelyStakeholders).toEqual([]);
     expect(result.suggestedAction).toMatch(/no known vendor/i);
   });

@@ -31,7 +31,7 @@ export default function Digest() {
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                 {thread.overview}{" "}
                 {thread.overviewEvidence?.map((item, index) => (
-                  <a key={`${item.messageId}:${index}`} href={item.sourceUrl} target="_blank" rel="noreferrer" className="ml-1 text-xs text-teal-700 hover:underline dark:text-teal-400">[{index + 1}]</a>
+                  <a key={`${item.messageId}:${index}`} href={item.sourceUrl} target="_blank" rel="noreferrer" className="ml-1 text-xs text-emerald-700 hover:underline dark:text-emerald-400">[{index + 1}]</a>
                 ))}
               </p>
             )}

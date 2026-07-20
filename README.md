@@ -1,12 +1,13 @@
 # LKMLens
 
-> **A clearer view into Linux kernel development.**
+> **Understand what kernel changes mean for your hardware and product.**
 
-LKMLens is a public search and exploration service for Linux kernel
-mailing-list discussions. It collects selected conversations from
-[lore.kernel.org](https://lore.kernel.org/), organizes them by technical
-topic, reconstructs discussion threads and patch series, and makes them
-searchable through a clean web interface.
+LKMLens is an open-source Linux kernel intelligence service for hardware and
+product teams. It follows selected public discussions from
+[lore.kernel.org](https://lore.kernel.org/), reconstructs patch series, maps
+changes to vendor and subsystem watchlists, and records observed progress from
+submission through maintainer trees, mainline, releases, stable backports, and
+Android common kernels.
 
 **Live:** https://lkmlens.pages.dev *(not yet deployed)*
 
@@ -16,9 +17,10 @@ archive; LKMLens is a discovery and interpretation layer on top of it.
 
 ## Status
 
-Version 0.3 development release. Deterministic search, incremental thread
-reconstruction, patch revision intelligence, explicit review signals,
-evidence-linked AI summaries, and daily/weekly digests are implemented.
+Version 0.3 development release. Topic and vendor curation, deterministic
+product-impact mapping, patch revision intelligence, explicit review evidence,
+integration-path records, search, evidence-linked AI summaries, and
+daily/weekly digests are implemented.
 
 ## Repository layout
 
@@ -47,14 +49,34 @@ pnpm --filter @lkmlens/web dev
 # Validate scheduled summary/digest Workers
 pnpm workers:typecheck
 
-# D1 (local)
-wrangler d1 migrations apply lkmlens --local
-pnpm --filter @lkmlens/web exec tsx ../../scripts/seed-topics.ts --local
+# D1 and curation indexes (local)
+pnpm db:migrate:local
+pnpm db:seed:topics:local
+pnpm db:seed:impact:local
+pnpm impact:compute:local
 ```
 
 Scheduled Workers live in `workers/summarizer` and `workers/digest`. Apply all
-D1 migrations before deploying them; the summarizer uses a Workers AI binding
-and processes at most five pending/stale threads per hourly run.
+D1 migrations before deploying them; the summarizer uses Gemini 3.1 Flash-Lite,
+a configurable daily request budget, and processes at most five pending/stale
+threads per hourly run.
+
+## Deployment
+
+Pull requests run the test, type-check, and web build checks. Pushes to `main`
+run the same verification and then apply D1 migrations, synchronize the default
+topic and impact rules, recompute vendor/product signals, deploy both scheduled Workers, and deploy the Pages
+application through `.github/workflows/deploy.yml`.
+
+The workflow requires these GitHub Actions repository secrets:
+
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_API_TOKEN`
+- `GEMINI_API_KEY`
+
+`GEMINI_API_KEY` is uploaded as an encrypted secret of the
+`lkmlens-summarizer` Worker. It must not be added to `wrangler.jsonc`, source
+files, or frontend environment variables.
 
 ## License
 

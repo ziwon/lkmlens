@@ -2,7 +2,7 @@
   "name": "lkmlens",
   "private": true,
   "version": "0.3.0",
-  "description": "A clearer view into Linux kernel development.",
+  "description": "Understand what Linux kernel changes mean for your hardware and product.",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=20"
@@ -21,6 +21,8 @@
     "patch-intelligence:remote": "tsx scripts/rebuild-patch-intelligence.ts --remote",
     "db:seed:impact:local": "tsx scripts/seed-impact-rules.ts --local",
     "db:seed:impact:remote": "tsx scripts/seed-impact-rules.ts --remote",
+    "impact:compute:local": "tsx scripts/compute-impact.ts --local",
+    "impact:compute:remote": "tsx scripts/compute-impact.ts --remote",
     "workers:typecheck": "pnpm --filter @lkmlens/summarizer typecheck && pnpm --filter @lkmlens/digest typecheck",
     "pages:deploy": "pnpm --filter @lkmlens/web build && wrangler pages deploy apps/web/dist --project-name=lkmlens"
   },

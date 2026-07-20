@@ -32,6 +32,7 @@ export interface ImpactSubject {
 }
 
 export interface InferredImpact {
+  vendors: string[];
   affectedLayers: string[];
   likelyStakeholders: string[];
   matchedBy: string[];
@@ -53,6 +54,7 @@ function describeMatch(rule: ImpactRule): string {
 
 export function inferImpact(input: ImpactSubject, rules: ImpactRule[]): InferredImpact {
   const layers = new Set<string>();
+  const vendors = new Set<string>();
   const stakeholders = new Set<string>();
   const matchedBy: string[] = [];
 
@@ -61,11 +63,13 @@ export function inferImpact(input: ImpactSubject, rules: ImpactRule[]): Inferred
     if (!matchRule(rule, input)) continue;
 
     layers.add(rule.layer);
+    if (rule.vendor) vendors.add(rule.vendor);
     for (const s of rule.stakeholders) stakeholders.add(s);
     matchedBy.push(describeMatch(rule));
   }
 
   return {
+    vendors: Array.from(vendors),
     affectedLayers: Array.from(layers),
     likelyStakeholders: Array.from(stakeholders),
     matchedBy,

@@ -1,5 +1,5 @@
 import type { SearchResultRow, ThreadDetail } from "@lkmlens/db";
-import type { AiUsageStatus, Digest, DigestPeriod, Topic } from "@lkmlens/shared";
+import type { AiUsageStatus, CurationChannel, CurationSignal, Digest, DigestPeriod, Topic } from "@lkmlens/shared";
 
 export async function fetchTopics(): Promise<Topic[]> {
   const res = await fetch("/api/topics");
@@ -41,4 +41,20 @@ export async function fetchAiUsageStatus(): Promise<AiUsageStatus> {
   const res = await fetch("/api/ai/status");
   if (!res.ok) throw new Error(`GET /api/ai/status failed: ${res.status}`);
   return (await res.json()) as AiUsageStatus;
+}
+
+export async function fetchCurationChannels(): Promise<CurationChannel[]> {
+  const res = await fetch("/api/curation");
+  if (!res.ok) throw new Error(`GET /api/curation failed: ${res.status}`);
+  return ((await res.json()) as { channels: CurationChannel[] }).channels;
+}
+
+export async function fetchCurationFeed(
+  kind: "topic" | "vendor",
+  slug: string,
+): Promise<{ channel: CurationChannel; signals: CurationSignal[] }> {
+  const res = await fetch(`/api/curation/${kind}/${encodeURIComponent(slug)}`);
+  if (res.status === 404) throw new Error("not-found");
+  if (!res.ok) throw new Error(`GET curation feed failed: ${res.status}`);
+  return (await res.json()) as { channel: CurationChannel; signals: CurationSignal[] };
 }

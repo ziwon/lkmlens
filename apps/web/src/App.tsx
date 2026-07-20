@@ -11,6 +11,8 @@ import Support from "./pages/Support.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Digests from "./pages/Digests.tsx";
 import Digest from "./pages/Digest.tsx";
+import Signals from "./pages/Signals.tsx";
+import SignalFeed from "./pages/SignalFeed.tsx";
 
 export default function App() {
   return (
@@ -18,6 +20,9 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="search" element={<Search />} />
+        <Route path="signals" element={<Signals />} />
+        <Route path="topics/:slug" element={<SignalFeed kind="topic" />} />
+        <Route path="vendors/:slug" element={<SignalFeed kind="vendor" />} />
         <Route path="threads/:id" element={<Thread />} />
         <Route path="digests" element={<Digests />} />
         <Route path="digests/:period/:key" element={<Digest />} />

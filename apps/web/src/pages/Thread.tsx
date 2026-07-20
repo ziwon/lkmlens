@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import type { Summary } from "@lkmlens/shared";
 import { fetchThread } from "../lib/api.ts";
 import { useAsync } from "../lib/useAsync.ts";
+import { LifecycleRail } from "../components/LifecycleRail.tsx";
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
@@ -24,7 +25,7 @@ function SummaryClaim({ text, summary }: { text: string; summary: Summary }) {
           href={item.sourceUrl}
           target="_blank"
           rel="noreferrer"
-          className="ml-1 text-xs font-medium text-teal-700 hover:underline dark:text-teal-400"
+          className="ml-1 text-xs font-medium text-emerald-700 hover:underline dark:text-emerald-400"
           title={`Evidence: ${item.messageId}`}
         >
           [{index + 1}]
@@ -53,7 +54,7 @@ export default function Thread() {
     );
   }
 
-  const { thread, messages, topics, impact, revisions, reviewSignals, summary } = result.data;
+  const { thread, messages, topics, impact, lifecycle, revisions, reviewSignals, summary } = result.data;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
@@ -62,7 +63,10 @@ export default function Thread() {
         {thread.patchVersion != null && <Badge>v{thread.patchVersion}</Badge>}
         {thread.mailingList && <Badge>list:{thread.mailingList}</Badge>}
         {topics.map((t) => (
-          <Badge key={t.slug}>{t.name}</Badge>
+          <Link key={t.slug} to={`/topics/${t.slug}`}><Badge>{t.name}</Badge></Link>
+        ))}
+        {impact?.vendors.map((vendor) => (
+          <Link key={vendor} to={`/vendors/${vendor.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`}><Badge>{vendor}</Badge></Link>
         ))}
       </div>
 
@@ -92,6 +96,21 @@ export default function Thread() {
         </p>
       )}
 
+      <section className="mt-8">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">PRODUCT READINESS</p>
+            <h2 className="mt-1 text-lg font-semibold text-slate-950 dark:text-white">Observed integration path</h2>
+          </div>
+          <Link to="/about/methodology" className="text-xs text-slate-500 hover:text-emerald-700 dark:hover:text-emerald-400">How evidence is verified →</Link>
+        </div>
+        <LifecycleRail lifecycle={lifecycle} reviewSignals={reviewSignals} submittedAt={thread.firstPostedAt} />
+        <p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-500">
+          Missing milestones mean LKMLens has not observed public evidence. They do not imply rejection or absence from a private BSP.
+          {lifecycle?.checkedAt && ` Last checked ${lifecycle.checkedAt}.`}
+        </p>
+      </section>
+
       {revisions.length > 1 && (
         <section className="mt-6 rounded-lg border border-slate-200 p-4 dark:border-slate-800">
           <h2 className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Revision timeline</h2>
@@ -99,7 +118,7 @@ export default function Thread() {
             {revisions.map((revision) => (
               <li key={revision.threadId} className="text-sm">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Link to={`/threads/${revision.threadId}`} className="font-medium text-teal-700 hover:underline dark:text-teal-400">v{revision.version}</Link>
+                  <Link to={`/threads/${revision.threadId}`} className="font-medium text-emerald-700 hover:underline dark:text-emerald-400">v{revision.version}</Link>
                   {revision.isCurrent && <Badge>latest</Badge>}
                   {revision.firstPostedAt && <span className="text-xs text-slate-500">{revision.firstPostedAt}</span>}
                 </div>
@@ -126,15 +145,19 @@ export default function Thread() {
       )}
 
       {impact && impact.affectedLayers.length > 0 && (
-        <div className="mt-6 rounded-lg border border-teal-200 bg-teal-50/60 p-4 dark:border-teal-900 dark:bg-teal-950/30">
-          <h2 className="text-xs font-semibold tracking-wide text-teal-800 uppercase dark:text-teal-400">
-            Practical impact
-            <span className="ml-2 font-normal normal-case text-teal-700/70 dark:text-teal-500/70">
-              rule-based, not AI-generated
+        <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50/60 p-5 dark:border-emerald-900 dark:bg-emerald-950/20">
+          <h2 className="text-xs font-semibold tracking-wide text-emerald-800 uppercase dark:text-emerald-400">
+            Product consequence
+            <span className="ml-2 font-normal normal-case text-emerald-700/70 dark:text-emerald-500/70">
+              deterministic mapping
             </span>
           </h2>
 
           <dl className="mt-3 space-y-3 text-sm">
+            <div>
+              <dt className="font-medium text-slate-700 dark:text-slate-300">Vendor lens</dt>
+              <dd className="mt-0.5 text-slate-600 dark:text-slate-400">{impact.vendors.join(", ") || "No vendor match"}</dd>
+            </div>
             <div>
               <dt className="font-medium text-slate-700 dark:text-slate-300">Affected layer</dt>
               <dd className="mt-0.5 text-slate-600 dark:text-slate-400">{impact.affectedLayers.join(", ")}</dd>
@@ -155,7 +178,7 @@ export default function Thread() {
             )}
           </dl>
 
-          <p className="mt-3 text-xs text-teal-700/70 dark:text-teal-500/70">
+          <p className="mt-3 text-xs text-emerald-700/70 dark:text-emerald-500/70">
             Matched by: {impact.matchedBy.join(", ")}
           </p>
         </div>

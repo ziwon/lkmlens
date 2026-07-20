@@ -5,8 +5,8 @@ export default function About() {
   return (
     <Prose title="About LKMLens">
       <p>
-        LKMLens is a public search and exploration service for Linux kernel
-        mailing-list discussions. It collects selected conversations from{" "}
+        LKMLens is an open-source kernel ecosystem observatory for teams that
+        build hardware products. It collects selected public conversations from{" "}
         <a
           className="underline decoration-slate-400 underline-offset-2"
           href="https://lore.kernel.org/"
@@ -15,18 +15,16 @@ export default function About() {
         >
           lore.kernel.org
         </a>
-        , organizes them by technical topic, reconstructs discussion threads
-        and patch series, and makes them searchable through a clean web
-        interface.
+        , reconstructs patch series, and curates the resulting signals by
+        vendor, subsystem, product surface, and integration stage.
       </p>
 
       <p>
         LKMLens is not intended to replace lore.kernel.org. Lore remains the
         canonical source and archive. LKMLens adds a discovery and
-        interpretation layer on top of it: topic-oriented browsing, fast
-        full-text search, thread reconstruction, patch-series and revision
-        tracking, discussion timelines, reviewer and maintainer context, and
-        evidence-linked AI summaries.
+        interpretation layer on top of it. The primary question is not simply
+        “what was posted?” but “what does this change mean for my hardware,
+        BSP, release plan, and integration work?”
       </p>
 
       <p className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
@@ -38,20 +36,20 @@ export default function About() {
         Who it's for
       </h2>
       <p>
-        Kernel engineers, systems and infrastructure engineers, eBPF/
-        networking/storage/virtualization engineers, GPU and accelerator
-        platform engineers, kernel-adjacent open-source contributors, and
-        anyone learning how kernel development and review actually work. No
-        account is required.
+        BSP and platform engineers, firmware and systems teams, robotics and
+        automotive developers, product planners, kernel engineers, and anyone
+        who needs reliable upstream signals without following every mailing
+        list. No account is required.
       </p>
 
       <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
         Status
       </h2>
       <p>
-        LKMLens is in early development. Search, topic classification,
-        patch-revision navigation, explicit review signals, and bounded
-        evidence-linked summaries are implemented. See{" "}
+        LKMLens is in early development. Topic and vendor lenses, deterministic
+        product-impact mapping, patch-revision navigation, explicit review
+        evidence, integration-path records, search, and bounded evidence-linked
+        summaries are implemented. See{" "}
         <Link className="underline decoration-slate-400 underline-offset-2" to="/about/methodology">
           methodology
         </Link>{" "}

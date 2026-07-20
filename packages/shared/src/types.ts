@@ -112,11 +112,37 @@ export interface ThreadTopic {
  */
 export interface ThreadImpact {
   threadId: number;
+  vendors: string[];
   affectedLayers: string[];
   likelyStakeholders: string[];
   suggestedAction: string | null;
   matchedBy: string[];
   generatedAt: string;
+}
+
+export type PatchLifecycleStage =
+  | "submitted"
+  | "under-review"
+  | "maintainer-tree"
+  | "mainline"
+  | "released"
+  | "stable-backport"
+  | "android-common";
+
+/** Observed repository and release evidence for a patch series. */
+export interface PatchLifecycle {
+  seriesId: number;
+  maintainerTree: string | null;
+  maintainerTreeUrl: string | null;
+  mainlineCommit: string | null;
+  mainlineCommitUrl: string | null;
+  mainlineMergedAt: string | null;
+  linuxVersion: string | null;
+  stableVersions: string[];
+  androidCommonBranches: string[];
+  sourceUrls: string[];
+  checkedAt: string | null;
+  updatedAt: string;
 }
 
 export interface PatchSeries {

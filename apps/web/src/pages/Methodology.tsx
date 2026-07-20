@@ -42,17 +42,49 @@ export default function Methodology() {
       </p>
 
       <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-        How summaries will be generated
+        How vendor and product signals are curated
+      </h2>
+      <p>
+        Vendor lenses use public, reviewable watchlist rules that match changed
+        file paths and subsystem prefixes to hardware vendors, affected product
+        surfaces, and the engineering roles likely to own the integration work.
+        Every result retains the exact rule that matched. A match means the
+        public patch touches a tracked area; it does not claim vendor approval,
+        private BSP inclusion, or technical correctness.
+      </p>
+
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+        How integration status is determined
+      </h2>
+      <p>
+        LKMLens records a sequence of observable milestones: LKML submission,
+        explicit <code>Reviewed-by</code> or <code>Acked-by</code> trailers,
+        presence in a public maintainer tree, a mainline commit, the first Linux
+        release containing that commit, stable backports, and Android common
+        kernel branches. Each repository or release claim must have a public
+        source. “Not observed” means the service has no public evidence; it does
+        not mean the patch was rejected or is absent from a private vendor tree.
+      </p>
+
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+        How summaries are generated
       </h2>
       <p>
         AI-generated summaries are generated only for selected active threads. Every
         material claim in a summary — review state, outstanding objections,
         numerical results, changes between patch revisions — must cite one or
         more source messages. Reply volume is never treated as approval, and
-        merge likelihood is never predicted without explicit evidence in the
-        thread. Summaries will be labeled with the model, prompt version, and
+        merge likelihood is never predicted. Summaries are labeled with the model, prompt version, and
         generation time, and are marked uncertain when a thread is incomplete or
         still active.
+      </p>
+      <p>
+        Summaries currently use the Gemini Developer API with a configurable
+        daily request budget. The interface warns when that local budget is
+        nearly exhausted and pauses generation until the next UTC day after
+        the limit is reached. On the Gemini free tier, submitted public mailing-list
+        text may be used by Google to improve its products; paid-tier processing
+        follows different data-use terms.
       </p>
 
       <h2 className="text-lg font-semibold text-slate-900 dark:text-white">

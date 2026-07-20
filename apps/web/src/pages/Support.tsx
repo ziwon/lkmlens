@@ -33,7 +33,7 @@ export default function Support() {
         href="https://github.com/sponsors/ziwon"
         target="_blank"
         rel="noreferrer"
-        className="focus-ring inline-flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2.5 font-medium text-white transition hover:bg-teal-500"
+        className="focus-ring inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 font-medium text-white transition hover:bg-emerald-500"
       >
         Sponsor on GitHub
       </a>

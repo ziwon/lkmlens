@@ -3,7 +3,7 @@ import { Link } from "react-router";
 export function Footer() {
   return (
     <footer className="border-t border-slate-200 dark:border-slate-800">
-      <div className="mx-auto max-w-5xl px-4 py-8 text-sm text-slate-500 sm:px-6 dark:text-slate-400">
+      <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-slate-500 sm:px-6 dark:text-slate-400">
         <p className="max-w-2xl">
           LKMLens is an independent project and is not affiliated with
           kernel.org, the Linux Foundation, or the Linux kernel project.
@@ -20,6 +20,9 @@ export function Footer() {
         </p>
 
         <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
+          <Link className="hover:text-slate-700 dark:hover:text-slate-200" to="/signals">
+            Signals
+          </Link>
           <Link className="hover:text-slate-700 dark:hover:text-slate-200" to="/about">
             About
           </Link>

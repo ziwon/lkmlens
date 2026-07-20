@@ -11,6 +11,7 @@
 
 :root {
   color-scheme: light dark;
+  --signal-green: #059669;
 }
 
 html,
@@ -20,13 +21,26 @@ body,
 }
 
 body {
-  @apply bg-white text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+  @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
 }
 
 ::selection {
-  @apply bg-teal-500/30;
+  @apply bg-emerald-500/30;
 }
 
 .focus-ring {
-  @apply outline-none ring-2 ring-teal-500/70 ring-offset-2 ring-offset-white dark:ring-offset-slate-950;
+  @apply outline-none;
+}
+
+.focus-ring:focus-visible {
+  @apply ring-2 ring-emerald-500/70 ring-offset-2 ring-offset-white dark:ring-offset-slate-950;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

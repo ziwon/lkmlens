@@ -30,7 +30,7 @@ export function SearchBox({ autoFocus = false }: { autoFocus?: boolean }) {
 
   return (
     <form onSubmit={onSubmit} className="w-full">
-      <div className="focus-within:ring-2 focus-within:ring-teal-500/70 flex items-center gap-3 rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm transition dark:border-slate-700 dark:bg-slate-900">
+      <div className="focus-within:ring-2 focus-within:ring-emerald-500/70 flex items-center gap-3 rounded-xl border border-slate-300 bg-white px-4 py-3 shadow-sm transition dark:border-slate-700 dark:bg-slate-900">
         <svg viewBox="0 0 24 24" fill="none" className="size-5 shrink-0 text-slate-400" aria-hidden="true">
           <circle cx="10.5" cy="10.5" r="6" stroke="currentColor" strokeWidth="1.75" />
           <line x1="15" y1="15" x2="20" y2="20" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />

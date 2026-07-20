@@ -1,6 +1,7 @@
 import type { D1Database } from "@cloudflare/workers-types";
 import type {
   Message,
+  PatchLifecycle,
   PatchRevisionSummary,
   ReviewSignal,
   Summary,
@@ -61,11 +62,27 @@ interface ThreadTopicRow {
 
 interface ThreadImpactRow {
   thread_id: number;
+  vendors_json: string;
   affected_layers_json: string;
   likely_stakeholders_json: string;
   suggested_action: string | null;
   matched_by_json: string;
   generated_at: string;
+}
+
+interface LifecycleRow {
+  series_id: number;
+  maintainer_tree: string | null;
+  maintainer_tree_url: string | null;
+  mainline_commit: string | null;
+  mainline_commit_url: string | null;
+  mainline_merged_at: string | null;
+  linux_version: string | null;
+  stable_versions_json: string;
+  android_common_branches_json: string;
+  source_urls_json: string;
+  checked_at: string | null;
+  updated_at: string;
 }
 
 function rowToThread(row: ThreadRow): Thread {
@@ -126,6 +143,7 @@ export interface ThreadTopicSummary {
 function rowToImpact(row: ThreadImpactRow): ThreadImpact {
   return {
     threadId: row.thread_id,
+    vendors: JSON.parse(row.vendors_json) as string[],
     affectedLayers: JSON.parse(row.affected_layers_json) as string[],
     likelyStakeholders: JSON.parse(row.likely_stakeholders_json) as string[],
     suggestedAction: row.suggested_action,
@@ -139,6 +157,7 @@ export interface ThreadDetail {
   messages: Message[];
   topics: ThreadTopicSummary[];
   impact: ThreadImpact | null;
+  lifecycle: PatchLifecycle | null;
   revisions: PatchRevisionSummary[];
   reviewSignals: ReviewSignal[];
   summary: Summary | null;
@@ -195,7 +214,7 @@ export async function getThreadById(db: D1Database, id: number): Promise<ThreadD
 
   if (!threadRow) return null;
 
-  const [messagesResult, topicsResult, impactRow, revisionsResult, signalsResult, summaryRow] = await Promise.all([
+  const [messagesResult, topicsResult, impactRow, revisionsResult, signalsResult, summaryRow, lifecycleRow] = await Promise.all([
     db
       .prepare(
         `SELECT id, message_id, thread_id, parent_message_id, subject, canonical_subject, author_name,
@@ -215,7 +234,7 @@ export async function getThreadById(db: D1Database, id: number): Promise<ThreadD
       .all<ThreadTopicRow>(),
     db
       .prepare(
-        `SELECT thread_id, affected_layers_json, likely_stakeholders_json, suggested_action, matched_by_json, generated_at
+        `SELECT thread_id, vendors_json, affected_layers_json, likely_stakeholders_json, suggested_action, matched_by_json, generated_at
          FROM thread_impact WHERE thread_id = ?`,
       )
       .bind(id)
@@ -248,6 +267,17 @@ export async function getThreadById(db: D1Database, id: number): Promise<ThreadD
       )
       .bind(id)
       .first<SummaryRow>(),
+    db
+      .prepare(
+        `SELECT pl.series_id, pl.maintainer_tree, pl.maintainer_tree_url, pl.mainline_commit,
+                pl.mainline_commit_url, pl.mainline_merged_at, pl.linux_version,
+                pl.stable_versions_json, pl.android_common_branches_json, pl.source_urls_json,
+                pl.checked_at, pl.updated_at
+         FROM patch_revisions pr JOIN patch_lifecycle pl ON pl.series_id = pr.series_id
+         WHERE pr.thread_id = ?`,
+      )
+      .bind(id)
+      .first<LifecycleRow>(),
   ]);
 
   return {
@@ -261,6 +291,20 @@ export async function getThreadById(db: D1Database, id: number): Promise<ThreadD
       isManual: row.is_manual === 1,
     })),
     impact: impactRow ? rowToImpact(impactRow) : null,
+    lifecycle: lifecycleRow ? {
+      seriesId: lifecycleRow.series_id,
+      maintainerTree: lifecycleRow.maintainer_tree,
+      maintainerTreeUrl: lifecycleRow.maintainer_tree_url,
+      mainlineCommit: lifecycleRow.mainline_commit,
+      mainlineCommitUrl: lifecycleRow.mainline_commit_url,
+      mainlineMergedAt: lifecycleRow.mainline_merged_at,
+      linuxVersion: lifecycleRow.linux_version,
+      stableVersions: JSON.parse(lifecycleRow.stable_versions_json) as string[],
+      androidCommonBranches: JSON.parse(lifecycleRow.android_common_branches_json) as string[],
+      sourceUrls: JSON.parse(lifecycleRow.source_urls_json) as string[],
+      checkedAt: lifecycleRow.checked_at,
+      updatedAt: lifecycleRow.updated_at,
+    } : null,
     revisions: revisionsResult.results.map((row) => ({
       seriesId: row.series_id,
       version: row.version,

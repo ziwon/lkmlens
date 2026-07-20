@@ -69,9 +69,10 @@ function main() {
     if (impact.matchedBy.length > 0) matchedCount++;
 
     statements.push(`
-INSERT INTO thread_impact (thread_id, affected_layers_json, likely_stakeholders_json, suggested_action, matched_by_json, generated_at)
+INSERT INTO thread_impact (thread_id, vendors_json, affected_layers_json, likely_stakeholders_json, suggested_action, matched_by_json, generated_at)
 VALUES (
   ${root.thread_id},
+  ${sqlString(JSON.stringify(impact.vendors))},
   ${sqlString(JSON.stringify(impact.affectedLayers))},
   ${sqlString(JSON.stringify(impact.likelyStakeholders))},
   ${sqlString(impact.suggestedAction)},
@@ -79,6 +80,7 @@ VALUES (
   CURRENT_TIMESTAMP
 )
 ON CONFLICT(thread_id) DO UPDATE SET
+  vendors_json = excluded.vendors_json,
   affected_layers_json = excluded.affected_layers_json,
   likely_stakeholders_json = excluded.likely_stakeholders_json,
   suggested_action = excluded.suggested_action,
