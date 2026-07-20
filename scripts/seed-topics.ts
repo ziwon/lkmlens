@@ -177,7 +177,11 @@ function sqlString(value: string): string {
 }
 
 function buildSql(): string {
-  const lines: string[] = ["BEGIN TRANSACTION;"];
+  // No explicit BEGIN/COMMIT: D1's Durable Object-backed SQLite rejects raw
+  // transaction control statements ("please use state.storage.transaction()
+  // instead") — wrangler d1 execute already applies the whole file as one
+  // unit.
+  const lines: string[] = [];
 
   for (const topic of TOPICS) {
     lines.push(
@@ -210,7 +214,6 @@ function buildSql(): string {
     }
   }
 
-  lines.push("COMMIT;");
   return lines.join("\n");
 }
 
