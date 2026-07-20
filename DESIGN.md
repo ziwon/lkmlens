@@ -48,7 +48,8 @@ signal.
 - Target WCAG 2.2 AA contrast and visible keyboard focus.
 - Never encode lifecycle state through color alone.
 - Respect reduced-motion preferences.
-- On narrow screens, lifecycle milestones stack and primary navigation keeps a
-  direct Signals entry available.
+- On narrow screens, lifecycle milestones stack and the primary navigation
+  keeps Digests available. Search begins on the home page; Methodology and
+  other project information remain in the footer.
 - English is the initial interface language; copy must remain translatable and
   avoid embedding meaning in icons.

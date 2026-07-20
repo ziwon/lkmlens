@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router";
+import { Navigate, Route, Routes } from "react-router";
 import { Layout } from "./components/Layout.tsx";
 import Home from "./pages/Home.tsx";
 import Search from "./pages/Search.tsx";
@@ -11,7 +11,7 @@ import Support from "./pages/Support.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Digests from "./pages/Digests.tsx";
 import Digest from "./pages/Digest.tsx";
-import Signals from "./pages/Signals.tsx";
+import ChannelIndex from "./pages/ChannelIndex.tsx";
 import SignalFeed from "./pages/SignalFeed.tsx";
 
 export default function App() {
@@ -20,7 +20,9 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="search" element={<Search />} />
-        <Route path="signals" element={<Signals />} />
+        <Route path="signals" element={<Navigate to="/" replace />} />
+        <Route path="topics" element={<ChannelIndex kind="topic" />} />
+        <Route path="vendors" element={<ChannelIndex kind="vendor" />} />
         <Route path="topics/:slug" element={<SignalFeed kind="topic" />} />
         <Route path="vendors/:slug" element={<SignalFeed kind="vendor" />} />
         <Route path="threads/:id" element={<Thread />} />

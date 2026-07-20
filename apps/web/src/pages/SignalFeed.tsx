@@ -11,9 +11,11 @@ export default function SignalFeed({ kind }: { kind: "topic" | "vendor" }) {
   if (result.status === "error") return <p className="mx-auto max-w-6xl px-4 py-12 text-sm text-red-600">{result.error.message === "not-found" ? "Channel not found." : `Could not load channel (${result.error.message}).`}</p>;
 
   const { channel, signals } = result.data;
+  const indexPath = kind === "vendor" ? "/vendors" : "/topics";
+  const indexLabel = kind === "vendor" ? "All vendors" : "All topics";
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-      <Link to="/signals" className="text-sm text-slate-500 hover:text-emerald-700 dark:hover:text-emerald-400">← All signals</Link>
+      <Link to={indexPath} className="text-sm text-slate-500 hover:text-emerald-700 dark:hover:text-emerald-400">← {indexLabel}</Link>
       <header className="mt-8 grid gap-6 border-b border-slate-300 pb-8 dark:border-slate-700 lg:grid-cols-[1fr_20rem]">
         <div>
           <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">{kind === "vendor" ? "VENDOR LENS" : "TOPIC LENS"}</p>

@@ -20,8 +20,14 @@ export function Footer() {
         </p>
 
         <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
-          <Link className="hover:text-slate-700 dark:hover:text-slate-200" to="/signals">
-            Signals
+          <Link className="hover:text-slate-700 dark:hover:text-slate-200" to="/topics">
+            Topics
+          </Link>
+          <Link className="hover:text-slate-700 dark:hover:text-slate-200" to="/vendors">
+            Vendors
+          </Link>
+          <Link className="hover:text-slate-700 dark:hover:text-slate-200" to="/digests">
+            Digests
           </Link>
           <Link className="hover:text-slate-700 dark:hover:text-slate-200" to="/about">
             About
@@ -31,9 +37,6 @@ export function Footer() {
           </Link>
           <Link className="hover:text-slate-700 dark:hover:text-slate-200" to="/support">
             Support
-          </Link>
-          <Link className="hover:text-slate-700 dark:hover:text-slate-200" to="/digests">
-            Digests
           </Link>
           <Link className="hover:text-slate-700 dark:hover:text-slate-200" to="/privacy">
             Privacy
