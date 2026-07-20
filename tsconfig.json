@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noUncheckedIndexedAccess": true,
+    "baseUrl": ".",
+    "paths": {
+      "@lkmlens/shared": ["packages/shared/src/index.ts"],
+      "@lkmlens/db": ["packages/db/src/index.ts"],
+      "@lkmlens/search": ["packages/search/src/index.ts"],
+      "@lkmlens/classifier": ["packages/classifier/src/index.ts"],
+      "@lkmlens/mail-parser": ["packages/mail-parser/src/index.ts"],
+      "@lkmlens/thread-builder": ["packages/thread-builder/src/index.ts"],
+      "@lkmlens/lore-client": ["packages/lore-client/src/index.ts"],
+      "@lkmlens/ai": ["packages/ai/src/index.ts"],
+      "@lkmlens/ui": ["packages/ui/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "**/dist", "**/.wrangler"]
+}

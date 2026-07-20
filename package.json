@@ -1,0 +1,30 @@
+{
+  "name": "lkmlens",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A clearer view into Linux kernel development.",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @lkmlens/web dev",
+    "build": "pnpm --filter @lkmlens/web build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "pnpm -r --if-present lint",
+    "test": "vitest run",
+    "db:migrate:local": "wrangler d1 migrations apply lkmlens --local",
+    "db:migrate:remote": "wrangler d1 migrations apply lkmlens --remote",
+    "db:seed:topics:local": "tsx scripts/seed-topics.ts --local",
+    "db:seed:topics:remote": "tsx scripts/seed-topics.ts --remote",
+    "pages:deploy": "pnpm --filter @lkmlens/web build && wrangler pages deploy apps/web/dist --project-name=lkmlens"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241224.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5",
+    "wrangler": "^4.61.1"
+  },
+  "packageManager": "pnpm@10.23.0"
+}

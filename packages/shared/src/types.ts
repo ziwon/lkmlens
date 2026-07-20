@@ -1,0 +1,157 @@
+/**
+ * Shared domain types mirroring the D1 schema in migrations/0001_initial.sql.
+ * See docs/PLANNING.md section 8 (Data Model) for the authoritative definitions.
+ */
+
+export interface Topic {
+  id: number;
+  slug: string;
+  name: string;
+  description: string | null;
+  enabled: boolean;
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type TopicRuleType =
+  | "alias"
+  | "subject"
+  | "mailing_list"
+  | "file_path"
+  | "patch_prefix"
+  | "body";
+
+export interface TopicRule {
+  id: number;
+  topicId: number;
+  ruleType: TopicRuleType;
+  pattern: string;
+  weight: number;
+  isNegative: boolean;
+  enabled: boolean;
+}
+
+export type ThreadType =
+  | "patch"
+  | "rfc"
+  | "pull_request"
+  | "discussion"
+  | "question"
+  | "announcement"
+  | "unknown";
+
+export type SummaryState = "pending" | "generated" | "stale" | "skipped";
+
+export interface Thread {
+  id: number;
+  rootMessageId: string;
+  canonicalSubject: string;
+  displaySubject: string;
+  mailingList: string | null;
+  threadType: ThreadType | null;
+  patchVersion: number | null;
+  patchTotal: number | null;
+  authorName: string | null;
+  sourceUrl: string;
+  firstPostedAt: string | null;
+  lastActivityAt: string | null;
+  messageCount: number;
+  reviewState: string | null;
+  summaryState: SummaryState;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type MessageType = "patch" | "reply" | "cover_letter" | "unknown";
+
+export interface Message {
+  id: number;
+  messageId: string;
+  threadId: number | null;
+  parentMessageId: string | null;
+  subject: string;
+  canonicalSubject: string | null;
+  authorName: string | null;
+  authorEmailHash: string | null;
+  mailingList: string | null;
+  messageType: MessageType | null;
+  postedAt: string | null;
+  sourceUrl: string;
+  bodyText: string | null;
+  bodyChecksum: string | null;
+  rawObjectKey: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TopicMatch {
+  topic: string;
+  score: number;
+  matchedBy: string[];
+}
+
+export interface ThreadTopic {
+  threadId: number;
+  topicId: number;
+  score: number;
+  matchedBy: string[];
+  isManual: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PatchSeries {
+  id: number;
+  seriesKey: string;
+  canonicalSubject: string;
+  latestVersion: number | null;
+  latestThreadId: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PatchRevision {
+  seriesId: number;
+  version: number;
+  threadId: number;
+  changeNotes: string | null;
+}
+
+export interface SummaryEvidence {
+  claimId: string;
+  messageId: string;
+  sourceUrl: string;
+}
+
+export interface SummaryExplicitSignal {
+  type: string;
+  person: string;
+  messageId: string;
+  sourceUrl: string;
+}
+
+/** Stable structure for AI-generated thread summaries. See PLANNING.md section 11. */
+export interface SummaryContent {
+  overview: string;
+  whyItMatters: string;
+  majorChanges: string[];
+  reviewDiscussion: string[];
+  outstandingQuestions: string[];
+  explicitSignals: SummaryExplicitSignal[];
+  uncertainties: string[];
+  evidence: SummaryEvidence[];
+}
+
+export interface Summary {
+  id: number;
+  threadId: number;
+  summaryType: string;
+  content: SummaryContent;
+  model: string;
+  promptVersion: string;
+  sourceMessageIds: string[];
+  generatedAt: string;
+  isCurrent: boolean;
+  humanReviewState: "unreviewed" | "confirmed" | "flagged";
+}

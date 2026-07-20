@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "lkmlens",
+  "pages_build_output_dir": "apps/web/dist",
+  "compatibility_date": "2026-07-20",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "lkmlens",
+      "database_id": "8fa88e30-59ce-470d-9798-d97786deaa77",
+      "migrations_dir": "migrations"
+    }
+  ]
+}
