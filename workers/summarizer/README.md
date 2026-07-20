@@ -1,5 +1,12 @@
-# summarizer (planned)
+# summarizer
 
-Generates evidence-linked thread summaries per the contract in
-the project planning doc (kept locally, not published) section 11, invalidated and
-regenerated as threads evolve. Not yet implemented — Phase 3.
+Hourly, bounded Workers AI job that generates evidence-linked summaries for
+pending or stale threads. It processes at most five threads per invocation,
+validates every claim against exact source message IDs/URLs, records the model
+and prompt version, and atomically replaces the current summary.
+
+```bash
+pnpm --filter @lkmlens/summarizer typecheck
+pnpm --filter @lkmlens/summarizer deploy
+```
+

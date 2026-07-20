@@ -1,0 +1,5 @@
+layer: sched_ext scheduler tooling
+file_patterns:
+  - "tools/sched_ext/**"
+stakeholders:
+  - sched_ext BPF-scheduler authors

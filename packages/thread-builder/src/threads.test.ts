@@ -78,6 +78,23 @@ describe("buildThreads", () => {
     expect(thread.rootConfidence).toBe("partial");
   });
 
+  it("attaches an incremental reply to a root already in storage", () => {
+    const reply = stub({
+      messageId: "new-reply@x",
+      inReplyTo: "old-reply@x",
+      references: ["root@x", "old-reply@x"],
+    });
+    const known = new Map([
+      ["root@x", "root@x"],
+      ["old-reply@x", "root@x"],
+    ]);
+
+    const { threads, assignments } = buildThreads([reply], { knownRootByMessageId: known });
+
+    expect(threads).toEqual([]);
+    expect(assignments).toEqual([{ messageId: "new-reply@x", rootMessageId: "root@x" }]);
+  });
+
   it("keeps two independent threads separate", () => {
     const a = stub({ messageId: "a@x", subject: "[PATCH] a" });
     const b = stub({ messageId: "b@x", subject: "[PATCH] b" });

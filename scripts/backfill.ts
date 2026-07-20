@@ -27,7 +27,17 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseMessage, type ParsedMessage } from "@lkmlens/mail-parser";
 import { syncMirror, readMirrorCommits } from "@lkmlens/lore-client";
-import { buildThreads, dedupeByMessageId, parsePatchInfo, type ThreadDraft } from "@lkmlens/thread-builder";
+import {
+  buildThreads,
+  dedupeByMessageId,
+  extractFilePaths,
+  extractReviewSignals,
+  extractRevisionNotes,
+  makeSeriesKey,
+  parsePatchInfo,
+  summarizeFileChanges,
+  type ThreadDraft,
+} from "@lkmlens/thread-builder";
 import { classifyMessage, type TopicRuleSet } from "@lkmlens/classifier";
 import { execD1File, parseD1Target, queryD1, sqlNumber, sqlString, type D1Target } from "./lib/d1.js";
 
@@ -90,17 +100,17 @@ function buildThreadSql(thread: ThreadDraft, inbox: string): string {
 INSERT INTO threads (
   root_message_id, canonical_subject, display_subject, mailing_list, thread_type,
   patch_version, patch_total, author_name, source_url, first_posted_at, last_activity_at,
-  message_count, summary_state
+  message_count, summary_state, root_confidence
 ) VALUES (
   ${sqlString(thread.rootMessageId)}, ${sqlString(thread.canonicalSubject)}, ${sqlString(thread.displaySubject)},
   ${sqlString(thread.mailingList)}, ${sqlString(thread.threadType)}, ${sqlNumber(thread.patchVersion)},
   ${sqlNumber(thread.patchTotal)}, ${sqlString(thread.authorName)},
   ${sqlString(sourceUrl(thread.mailingList, thread.rootMessageId, inbox))},
-  ${sqlString(thread.firstPostedAt)}, ${sqlString(thread.lastActivityAt)}, ${thread.messageIds.length}, 'pending'
+  ${sqlString(thread.firstPostedAt)}, ${sqlString(thread.lastActivityAt)}, 0, 'pending',
+  ${sqlString(thread.rootConfidence)}
 )
 ON CONFLICT(root_message_id) DO UPDATE SET
-  last_activity_at = MAX(threads.last_activity_at, excluded.last_activity_at),
-  message_count = threads.message_count + excluded.message_count;`;
+  root_confidence = CASE WHEN excluded.root_confidence = 'complete' THEN 'complete' ELSE threads.root_confidence END;`;
 }
 
 function truncateBody(bodyText: string): string {
@@ -108,23 +118,78 @@ function truncateBody(bodyText: string): string {
   return `${bodyText.slice(0, MAX_BODY_CHARS)}\n\n[... truncated, ${bodyText.length - MAX_BODY_CHARS} more characters]`;
 }
 
-function buildMessageSql(parsed: ParsedMessage, rootMessageId: string, isThreadRoot: boolean, inbox: string): string {
+function buildMessageSql(
+  parsed: ParsedMessage,
+  rootMessageId: string,
+  isThreadRoot: boolean,
+  inbox: string,
+  rawObjectKey: string | null,
+): string {
   const body = truncateBody(parsed.bodyText);
   const checksum = createHash("sha256").update(body).digest("hex");
+  const patch = parsePatchInfo(parsed.subject);
   return `
 INSERT INTO messages (
   message_id, thread_id, parent_message_id, subject, canonical_subject, author_name,
   author_email_hash, mailing_list, message_type, posted_at, source_url, body_text,
-  body_checksum, raw_object_key
+  body_checksum, raw_object_key, patch_index, patch_total
 ) VALUES (
   ${sqlString(parsed.messageId)},
   (SELECT id FROM threads WHERE root_message_id = ${sqlString(rootMessageId)}),
   ${sqlString(parsed.inReplyTo)}, ${sqlString(parsed.subject)}, ${sqlString(parsed.subject)},
   ${sqlString(parsed.from?.name ?? parsed.from?.email ?? null)}, ${sqlString(emailHash(parsed.from?.email))},
   ${sqlString(parsed.mailingList)}, ${sqlString(messageType(parsed, isThreadRoot))}, ${sqlString(parsed.postedAt)},
-  ${sqlString(sourceUrl(parsed.mailingList, parsed.messageId, inbox))}, ${sqlString(body)}, ${sqlString(checksum)}, NULL
+  ${sqlString(sourceUrl(parsed.mailingList, parsed.messageId, inbox))}, ${sqlString(body)}, ${sqlString(checksum)}, ${sqlString(rawObjectKey)},
+  ${sqlNumber(patch.patchIndex)}, ${sqlNumber(patch.patchTotal)}
 )
 ON CONFLICT(message_id) DO NOTHING;`;
+}
+
+function buildReviewSignalSql(parsed: ParsedMessage, rootMessageId: string, inbox: string): string[] {
+  return extractReviewSignals(parsed.bodyText).map((signal) => `
+INSERT INTO review_signals (
+  thread_id, message_id, signal_type, person_name, person_email_hash, source_url
+) VALUES (
+  (SELECT id FROM threads WHERE root_message_id = ${sqlString(rootMessageId)}),
+  ${sqlString(parsed.messageId)}, ${sqlString(signal.type)}, ${sqlString(signal.personName)},
+  ${sqlString(emailHash(signal.email))}, ${sqlString(sourceUrl(parsed.mailingList, parsed.messageId, inbox))}
+)
+ON CONFLICT(message_id, signal_type, person_name) DO NOTHING;`);
+}
+
+function buildSeriesSql(thread: ThreadDraft, root: ParsedMessage, changeNotes: string | null): string[] {
+  if (thread.patchVersion == null) return [];
+  const key = makeSeriesKey(root.subject);
+  return [
+    `INSERT INTO patch_series (series_key, canonical_subject, latest_version, latest_thread_id)
+VALUES (
+  ${sqlString(key)}, ${sqlString(thread.canonicalSubject)}, ${thread.patchVersion},
+  (SELECT id FROM threads WHERE root_message_id = ${sqlString(thread.rootMessageId)})
+)
+ON CONFLICT(series_key) DO UPDATE SET
+  latest_version = MAX(COALESCE(patch_series.latest_version, 0), excluded.latest_version),
+  latest_thread_id = CASE
+    WHEN excluded.latest_version >= COALESCE(patch_series.latest_version, 0) THEN excluded.latest_thread_id
+    ELSE patch_series.latest_thread_id END;`,
+    `INSERT INTO patch_revisions (series_id, version, thread_id, change_notes)
+VALUES (
+  (SELECT id FROM patch_series WHERE series_key = ${sqlString(key)}), ${thread.patchVersion},
+  (SELECT id FROM threads WHERE root_message_id = ${sqlString(thread.rootMessageId)}),
+  ${sqlString(changeNotes)}
+)
+ON CONFLICT(series_id, version) DO UPDATE SET
+  thread_id = excluded.thread_id,
+  change_notes = COALESCE(excluded.change_notes, patch_revisions.change_notes);`,
+  ];
+}
+
+function buildThreadStatsSql(rootMessageId: string): string {
+  return `UPDATE threads SET
+  first_posted_at = (SELECT MIN(posted_at) FROM messages WHERE thread_id = threads.id),
+  last_activity_at = (SELECT MAX(posted_at) FROM messages WHERE thread_id = threads.id),
+  message_count = (SELECT COUNT(*) FROM messages WHERE thread_id = threads.id),
+  summary_state = CASE WHEN summary_state = 'generated' THEN 'stale' ELSE summary_state END
+WHERE root_message_id = ${sqlString(rootMessageId)};`;
 }
 
 function buildThreadTopicSql(rootMessageId: string, topicSlug: string, score: number, matchedBy: string[]): string {
@@ -149,6 +214,41 @@ FROM messages m;`;
 
 interface CheckpointRow {
   cursor: string | null;
+}
+
+function fetchKnownRoots(target: D1Target, messages: ParsedMessage[]): Map<string, string> {
+  const ids = new Set<string>();
+  for (const message of messages) {
+    ids.add(message.messageId);
+    if (message.inReplyTo) ids.add(message.inReplyTo);
+    for (const reference of message.references) ids.add(reference);
+  }
+  if (ids.size === 0) return new Map();
+
+  const rows = queryD1<{ message_id: string; root_message_id: string }>(
+    `SELECT m.message_id, t.root_message_id
+     FROM messages m JOIN threads t ON t.id = m.thread_id
+     WHERE m.message_id IN (${Array.from(ids, sqlString).join(",")})`,
+    target,
+  );
+  return new Map(rows.map((row) => [row.message_id, row.root_message_id]));
+}
+
+function inferChangeNotes(target: D1Target, thread: ThreadDraft, root: ParsedMessage): string | null {
+  const authored = extractRevisionNotes(root.bodyText);
+  if (authored || thread.patchVersion == null || thread.patchVersion <= 1) return authored;
+
+  const key = makeSeriesKey(root.subject);
+  const previous = queryD1<{ body_text: string }>(
+    `SELECT m.body_text FROM patch_series ps
+     JOIN patch_revisions pr ON pr.series_id = ps.id
+     JOIN threads t ON t.id = pr.thread_id
+     JOIN messages m ON m.message_id = t.root_message_id
+     WHERE ps.series_key = ${sqlString(key)} AND pr.version < ${thread.patchVersion}
+     ORDER BY pr.version DESC LIMIT 1`,
+    target,
+  )[0];
+  return previous ? summarizeFileChanges(extractFilePaths(previous.body_text), extractFilePaths(root.bodyText)) : null;
 }
 
 function fetchTopicRuleSets(target: D1Target): TopicRuleSet[] {
@@ -214,6 +314,7 @@ function main() {
   console.log(`Found ${commits.length} new commit(s).`);
 
   const parsedByMessageId = new Map<string, ParsedMessage>();
+  const rawObjectKeyByMessageId = new Map<string, string>();
   let lastSha = checkpoint?.cursor ?? null;
   for (const commit of commits) {
     const parsed = parseMessage(commit.raw);
@@ -222,30 +323,46 @@ function main() {
       continue;
     }
     parsedByMessageId.set(parsed.messageId, parsed);
+    // The git mirror retains the full RFC822 object even when the searchable
+    // D1 body is truncated. This key is rebuildable and can later be copied
+    // to R2 without changing canonical message records.
+    rawObjectKeyByMessageId.set(parsed.messageId, `lore-git://${args.inbox}/${args.epoch}/${commit.sha}`);
     lastSha = commit.sha;
   }
 
   const messages = dedupeByMessageId(Array.from(parsedByMessageId.values()));
-  const { threads } = buildThreads(messages);
+  const knownRoots = fetchKnownRoots(args.target, messages);
+  const newMessages = messages.filter((message) => !knownRoots.has(message.messageId));
+  const { threads, assignments } = buildThreads(newMessages, { knownRootByMessageId: knownRoots });
+  const assignmentByMessageId = new Map(assignments.map((item) => [item.messageId, item.rootMessageId]));
   const topicRuleSets = fetchTopicRuleSets(args.target);
 
-  console.log(`Parsed ${messages.length} message(s) into ${threads.length} thread(s).`);
+  console.log(`Parsed ${messages.length} message(s); ${newMessages.length} new message(s) in ${threads.length} new thread(s).`);
 
   const statements: string[] = [];
   let lastMessageAt: string | null = null;
 
   for (const thread of threads) {
     statements.push(buildThreadSql(thread, args.inbox));
+  }
 
-    for (const messageId of thread.messageIds) {
-      const parsed = parsedByMessageId.get(messageId);
-      if (!parsed) continue;
-      statements.push(buildMessageSql(parsed, thread.rootMessageId, messageId === thread.rootMessageId, args.inbox));
-      if (parsed.postedAt && (!lastMessageAt || parsed.postedAt > lastMessageAt)) {
-        lastMessageAt = parsed.postedAt;
-      }
+  for (const parsed of newMessages) {
+    const rootMessageId = assignmentByMessageId.get(parsed.messageId);
+    if (!rootMessageId) continue;
+    statements.push(buildMessageSql(
+      parsed,
+      rootMessageId,
+      parsed.messageId === rootMessageId,
+      args.inbox,
+      rawObjectKeyByMessageId.get(parsed.messageId) ?? null,
+    ));
+    statements.push(...buildReviewSignalSql(parsed, rootMessageId, args.inbox));
+    if (parsed.postedAt && (!lastMessageAt || parsed.postedAt > lastMessageAt)) {
+      lastMessageAt = parsed.postedAt;
     }
+  }
 
+  for (const thread of threads) {
     const rootMessage = parsedByMessageId.get(thread.rootMessageId);
     if (rootMessage) {
       const matches = classifyMessage(
@@ -255,7 +372,12 @@ function main() {
       for (const match of matches) {
         statements.push(buildThreadTopicSql(thread.rootMessageId, match.topic, match.score, match.matchedBy));
       }
+      statements.push(...buildSeriesSql(thread, rootMessage, inferChangeNotes(args.target, thread, rootMessage)));
     }
+  }
+
+  for (const rootMessageId of new Set(assignments.map((item) => item.rootMessageId))) {
+    statements.push(buildThreadStatsSql(rootMessageId));
   }
 
   statements.push(`
@@ -267,7 +389,7 @@ ON CONFLICT(source_key) DO UPDATE SET
 
   statements.push(REBUILD_FTS_SQL);
 
-  execD1File(statements.join("\n"), args.target, `Ingesting ${messages.length} message(s)`);
+  execD1File(statements.join("\n"), args.target, `Ingesting ${newMessages.length} new message(s)`);
   console.log("Done.");
 }
 

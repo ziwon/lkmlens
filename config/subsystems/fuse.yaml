@@ -1,0 +1,5 @@
+layer: FUSE filesystem
+file_patterns:
+  - "fs/fuse/**"
+stakeholders:
+  - Userspace filesystem (FUSE-based) developers

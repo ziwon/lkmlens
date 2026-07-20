@@ -49,9 +49,9 @@ export default function About() {
         Status
       </h2>
       <p>
-        LKMLens is in early development. Search, topic classification, and
-        the data model are in place; message ingestion from lore.kernel.org
-        has not started yet, so search results are currently empty. See{" "}
+        LKMLens is in early development. Search, topic classification,
+        patch-revision navigation, explicit review signals, and bounded
+        evidence-linked summaries are implemented. See{" "}
         <Link className="underline decoration-slate-400 underline-offset-2" to="/about/methodology">
           methodology
         </Link>{" "}

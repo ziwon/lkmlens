@@ -1,0 +1,6 @@
+layer: IOMMU subsystem
+file_patterns:
+  - "drivers/iommu/**"
+stakeholders:
+  - Virtualization platform teams
+  - Device passthrough (VFIO) users

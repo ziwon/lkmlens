@@ -1,5 +1,12 @@
 import type { D1Database } from "@cloudflare/workers-types";
-import type { Message, Thread, ThreadImpact } from "@lkmlens/shared";
+import type {
+  Message,
+  PatchRevisionSummary,
+  ReviewSignal,
+  Summary,
+  Thread,
+  ThreadImpact,
+} from "@lkmlens/shared";
 
 interface ThreadRow {
   id: number;
@@ -17,6 +24,7 @@ interface ThreadRow {
   message_count: number;
   review_state: string | null;
   summary_state: Thread["summaryState"];
+  root_confidence: Thread["rootConfidence"];
   created_at: string;
   updated_at: string;
 }
@@ -37,6 +45,8 @@ interface MessageRow {
   body_text: string | null;
   body_checksum: string | null;
   raw_object_key: string | null;
+  patch_index: number | null;
+  patch_total: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -75,6 +85,7 @@ function rowToThread(row: ThreadRow): Thread {
     messageCount: row.message_count,
     reviewState: row.review_state,
     summaryState: row.summary_state,
+    rootConfidence: row.root_confidence,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -97,6 +108,8 @@ function rowToMessage(row: MessageRow): Message {
     bodyText: row.body_text,
     bodyChecksum: row.body_checksum,
     rawObjectKey: row.raw_object_key,
+    patchIndex: row.patch_index,
+    patchTotal: row.patch_total,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -126,6 +139,42 @@ export interface ThreadDetail {
   messages: Message[];
   topics: ThreadTopicSummary[];
   impact: ThreadImpact | null;
+  revisions: PatchRevisionSummary[];
+  reviewSignals: ReviewSignal[];
+  summary: Summary | null;
+}
+
+interface RevisionRow {
+  series_id: number;
+  version: number;
+  thread_id: number;
+  display_subject: string;
+  first_posted_at: string | null;
+  change_notes: string | null;
+  latest_thread_id: number | null;
+}
+
+interface ReviewSignalRow {
+  id: number;
+  thread_id: number;
+  message_id: string;
+  signal_type: ReviewSignal["signalType"];
+  person_name: string;
+  source_url: string;
+}
+
+interface SummaryRow {
+  id: number;
+  thread_id: number;
+  summary_type: string;
+  content_json: string;
+  model: string;
+  prompt_version: string;
+  source_message_ids_json: string;
+  source_set_checksum: string | null;
+  generated_at: string;
+  is_current: number;
+  human_review_state: Summary["humanReviewState"];
 }
 
 /**
@@ -138,7 +187,7 @@ export async function getThreadById(db: D1Database, id: number): Promise<ThreadD
     .prepare(
       `SELECT id, root_message_id, canonical_subject, display_subject, mailing_list, thread_type,
               patch_version, patch_total, author_name, source_url, first_posted_at, last_activity_at,
-              message_count, review_state, summary_state, created_at, updated_at
+              message_count, review_state, summary_state, root_confidence, created_at, updated_at
        FROM threads WHERE id = ?`,
     )
     .bind(id)
@@ -146,12 +195,12 @@ export async function getThreadById(db: D1Database, id: number): Promise<ThreadD
 
   if (!threadRow) return null;
 
-  const [messagesResult, topicsResult, impactRow] = await Promise.all([
+  const [messagesResult, topicsResult, impactRow, revisionsResult, signalsResult, summaryRow] = await Promise.all([
     db
       .prepare(
         `SELECT id, message_id, thread_id, parent_message_id, subject, canonical_subject, author_name,
                 author_email_hash, mailing_list, message_type, posted_at, source_url, body_text,
-                body_checksum, raw_object_key, created_at, updated_at
+                body_checksum, raw_object_key, patch_index, patch_total, created_at, updated_at
          FROM messages WHERE thread_id = ? ORDER BY posted_at ASC`,
       )
       .bind(id)
@@ -171,6 +220,34 @@ export async function getThreadById(db: D1Database, id: number): Promise<ThreadD
       )
       .bind(id)
       .first<ThreadImpactRow>(),
+    db
+      .prepare(
+        `SELECT pr.series_id, pr.version, pr.thread_id, t.display_subject, t.first_posted_at,
+                pr.change_notes, ps.latest_thread_id
+         FROM patch_revisions current
+         JOIN patch_revisions pr ON pr.series_id = current.series_id
+         JOIN patch_series ps ON ps.id = pr.series_id
+         JOIN threads t ON t.id = pr.thread_id
+         WHERE current.thread_id = ? ORDER BY pr.version ASC`,
+      )
+      .bind(id)
+      .all<RevisionRow>(),
+    db
+      .prepare(
+        `SELECT id, thread_id, message_id, signal_type, person_name, source_url
+         FROM review_signals WHERE thread_id = ? ORDER BY id ASC`,
+      )
+      .bind(id)
+      .all<ReviewSignalRow>(),
+    db
+      .prepare(
+        `SELECT id, thread_id, summary_type, content_json, model, prompt_version,
+                source_message_ids_json, source_set_checksum, generated_at, is_current, human_review_state
+         FROM summaries WHERE thread_id = ? AND summary_type = 'thread' AND is_current = 1
+         ORDER BY generated_at DESC LIMIT 1`,
+      )
+      .bind(id)
+      .first<SummaryRow>(),
   ]);
 
   return {
@@ -184,5 +261,35 @@ export async function getThreadById(db: D1Database, id: number): Promise<ThreadD
       isManual: row.is_manual === 1,
     })),
     impact: impactRow ? rowToImpact(impactRow) : null,
+    revisions: revisionsResult.results.map((row) => ({
+      seriesId: row.series_id,
+      version: row.version,
+      threadId: row.thread_id,
+      displaySubject: row.display_subject,
+      firstPostedAt: row.first_posted_at,
+      changeNotes: row.change_notes,
+      isCurrent: row.latest_thread_id === row.thread_id,
+    })),
+    reviewSignals: signalsResult.results.map((row) => ({
+      id: row.id,
+      threadId: row.thread_id,
+      messageId: row.message_id,
+      signalType: row.signal_type,
+      personName: row.person_name,
+      sourceUrl: row.source_url,
+    })),
+    summary: summaryRow ? {
+      id: summaryRow.id,
+      threadId: summaryRow.thread_id,
+      summaryType: summaryRow.summary_type,
+      content: JSON.parse(summaryRow.content_json) as Summary["content"],
+      model: summaryRow.model,
+      promptVersion: summaryRow.prompt_version,
+      sourceMessageIds: JSON.parse(summaryRow.source_message_ids_json) as string[],
+      generatedAt: summaryRow.generated_at,
+      isCurrent: summaryRow.is_current === 1,
+      humanReviewState: summaryRow.human_review_state,
+      sourceSetChecksum: summaryRow.source_set_checksum,
+    } : null,
   };
 }

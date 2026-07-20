@@ -1,0 +1,7 @@
+# Validated against our ingested bpf corpus.
+layer: Kernel BPF core / verifier
+file_patterns:
+  - "kernel/bpf/**"
+stakeholders:
+  - eBPF tooling maintainers (libbpf, bpftool)
+  - Container/observability platform teams (Cilium, Falco, ...)

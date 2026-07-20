@@ -1,0 +1,11 @@
+# IBM kernel contribution watchlist.
+vendor: IBM
+description: >
+  s390 (IBM Z mainframe) architecture support. Included mainly as an
+  architecture-vendor mapping example; not robotics-relevant.
+areas:
+  - name: s390 (IBM Z) architecture core
+    file_patterns:
+      - "arch/s390/**"
+    stakeholders:
+      - IBM Z platform engineers

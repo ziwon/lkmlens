@@ -1,0 +1,5 @@
+layer: RISC-V architecture core
+file_patterns:
+  - "arch/riscv/**"
+stakeholders:
+  - RISC-V platform/SoC vendors

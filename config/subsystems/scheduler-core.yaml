@@ -1,0 +1,7 @@
+# Validated against our ingested kvm/bpf corpus.
+layer: CPU scheduler core
+file_patterns:
+  - "kernel/sched/**"
+stakeholders:
+  - sched_ext BPF-scheduler authors
+  - Cloud/hypervisor CPU-scheduling teams

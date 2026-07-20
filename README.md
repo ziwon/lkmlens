@@ -16,7 +16,9 @@ archive; LKMLens is a discovery and interpretation layer on top of it.
 
 ## Status
 
-Early development (Phase 0 / Phase 1 of the MVP scope).
+Version 0.3 development release. Deterministic search, incremental thread
+reconstruction, patch revision intelligence, explicit review signals,
+evidence-linked AI summaries, and daily/weekly digests are implemented.
 
 ## Repository layout
 
@@ -42,10 +44,17 @@ pnpm install
 # Web app
 pnpm --filter @lkmlens/web dev
 
+# Validate scheduled summary/digest Workers
+pnpm workers:typecheck
+
 # D1 (local)
 wrangler d1 migrations apply lkmlens --local
 pnpm --filter @lkmlens/web exec tsx ../../scripts/seed-topics.ts --local
 ```
+
+Scheduled Workers live in `workers/summarizer` and `workers/digest`. Apply all
+D1 migrations before deploying them; the summarizer uses a Workers AI binding
+and processes at most five pending/stale threads per hourly run.
 
 ## License
 

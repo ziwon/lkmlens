@@ -1,0 +1,5 @@
+layer: PCI subsystem core
+file_patterns:
+  - "drivers/pci/**"
+stakeholders:
+  - Platform/firmware bring-up engineers

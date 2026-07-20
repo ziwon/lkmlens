@@ -4,6 +4,7 @@ import { ThemeToggle } from "./ThemeToggle.tsx";
 
 const links = [
   { to: "/#topics", label: "Topics" },
+  { to: "/digests", label: "Digests" },
   { to: "/about", label: "About" },
   { to: "/support", label: "Support" },
 ];

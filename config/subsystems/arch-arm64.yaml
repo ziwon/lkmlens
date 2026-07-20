@@ -1,0 +1,5 @@
+layer: ARM64 architecture core
+file_patterns:
+  - "arch/arm64/**"
+stakeholders:
+  - ARM64 platform/BSP engineers

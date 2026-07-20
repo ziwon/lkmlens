@@ -29,6 +29,9 @@ export function Footer() {
           <Link className="hover:text-slate-700 dark:hover:text-slate-200" to="/support">
             Support
           </Link>
+          <Link className="hover:text-slate-700 dark:hover:text-slate-200" to="/digests">
+            Digests
+          </Link>
           <Link className="hover:text-slate-700 dark:hover:text-slate-200" to="/privacy">
             Privacy
           </Link>

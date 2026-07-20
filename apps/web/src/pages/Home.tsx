@@ -1,10 +1,11 @@
 import { Link } from "react-router";
 import { SearchBox } from "../components/SearchBox.tsx";
-import { fetchTopics } from "../lib/api.ts";
+import { fetchDigests, fetchTopics } from "../lib/api.ts";
 import { useAsync } from "../lib/useAsync.ts";
 
 export default function Home() {
   const topics = useAsync(fetchTopics, []);
+  const digests = useAsync(fetchDigests, []);
 
   return (
     <div>
@@ -30,6 +31,23 @@ export default function Home() {
           </code>
         </p>
       </section>
+
+      {digests.status === "success" && digests.data.length > 0 && (
+        <section className="mx-auto max-w-5xl px-4 pb-12 sm:px-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Latest digests</h2>
+            <Link to="/digests" className="text-xs text-teal-700 hover:underline dark:text-teal-400">View all</Link>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            {digests.data.slice(0, 3).map((digest) => (
+              <Link key={`${digest.periodType}:${digest.periodKey}`} to={`/digests/${digest.periodType}/${digest.periodKey}`} className="rounded-lg border border-slate-200 p-4 hover:border-teal-400 dark:border-slate-800">
+                <div className="font-medium text-slate-900 dark:text-white">{digest.title}</div>
+                <p className="mt-1 text-xs text-slate-500">{digest.content.threads.length} selected threads</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section id="topics" className="mx-auto max-w-5xl scroll-mt-20 px-4 pb-20 sm:px-6">
         <h2 className="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">

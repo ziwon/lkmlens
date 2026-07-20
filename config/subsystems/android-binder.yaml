@@ -1,0 +1,7 @@
+# Validated against our ingested rust-for-linux corpus (rust_binder).
+layer: Android IPC (binder) driver
+file_patterns:
+  - "drivers/android/**"
+stakeholders:
+  - Android platform team
+  - AOSP kernel integrators

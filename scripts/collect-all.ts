@@ -15,6 +15,8 @@
  * After collection, also recomputes deterministic patch-impact tags
  * (packages/impact) over all threads, so new patches get affected-layer/
  * stakeholder tags without a separate manual step.
+ * Evidence-linked summaries and digests run in their own bounded Cloudflare
+ * scheduled Workers; collection only marks changed summaries stale.
  *
  * Usage: tsx scripts/collect-all.ts
  */

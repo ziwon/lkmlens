@@ -1,6 +1,6 @@
 {
   "name": "@lkmlens/db",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "main": "./src/index.ts",
@@ -11,6 +11,6 @@
     "@lkmlens/shared": "workspace:*"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241224.0"
+    "@cloudflare/workers-types": "^5.20260719.1"
   }
 }

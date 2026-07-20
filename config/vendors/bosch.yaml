@@ -1,0 +1,26 @@
+# Bosch kernel contribution watchlist.
+#
+# Bosch는 완성 로봇 회사라기보다 센서·자동차·산업 솔루션 업체에 가까움.
+# CAN, 센서 드라이버, IIO, 산업용 네트워크, 자동차 통신, 안전·실시간
+# 시스템에서 관련성이 있음. Bosch designed the M_CAN IP block that many
+# other silicon vendors license, and Bosch Sensortec makes the BMI/BMP/BME
+# IMU and environmental sensor families widely used in robotics.
+vendor: Bosch
+description: >
+  CAN controller IP (M_CAN, widely licensed) and Bosch Sensortec
+  IMU/environmental sensors (BMI/BMP/BME families) used across robotics
+  and automotive sensor stacks.
+areas:
+  - name: CAN (M_CAN / classic controllers)
+    file_patterns:
+      - "drivers/net/can/m_can/**"
+      - "drivers/net/can/sja1000/**"
+    stakeholders:
+      - Industrial/automotive CAN bus integrators
+
+  - name: IMU and environmental sensors (Bosch Sensortec)
+    file_patterns:
+      - "drivers/iio/imu/bmi*/**"
+      - "drivers/iio/pressure/bmp*"
+    stakeholders:
+      - Robotics sensor-stack integrators

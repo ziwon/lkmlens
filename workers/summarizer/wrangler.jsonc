@@ -1,0 +1,22 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "lkmlens-summarizer",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-20",
+  "compatibility_flags": ["nodejs_compat"],
+  "triggers": { "crons": ["17 * * * *"] },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "lkmlens",
+      "database_id": "8fa88e30-59ce-470d-9798-d97786deaa77",
+      "migrations_dir": "../../migrations"
+    }
+  ],
+  "ai": { "binding": "AI" },
+  "observability": {
+    "enabled": true,
+    "logs": { "head_sampling_rate": 1 },
+    "traces": { "enabled": true, "head_sampling_rate": 0.05 }
+  }
+}

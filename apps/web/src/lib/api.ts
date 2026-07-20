@@ -1,5 +1,5 @@
 import type { SearchResultRow, ThreadDetail } from "@lkmlens/db";
-import type { Topic } from "@lkmlens/shared";
+import type { Digest, DigestPeriod, Topic } from "@lkmlens/shared";
 
 export async function fetchTopics(): Promise<Topic[]> {
   const res = await fetch("/api/topics");
@@ -21,4 +21,18 @@ export async function fetchThread(id: string): Promise<ThreadDetail> {
   if (res.status === 404) throw new Error("not-found");
   if (!res.ok) throw new Error(`GET /api/threads/${id} failed: ${res.status}`);
   return (await res.json()) as ThreadDetail;
+}
+
+export async function fetchDigests(): Promise<Digest[]> {
+  const res = await fetch("/api/digests");
+  if (!res.ok) throw new Error(`GET /api/digests failed: ${res.status}`);
+  const data = (await res.json()) as { digests: Digest[] };
+  return data.digests;
+}
+
+export async function fetchDigest(period: DigestPeriod, key: string): Promise<Digest> {
+  const res = await fetch(`/api/digests/${period}/${encodeURIComponent(key)}`);
+  if (res.status === 404) throw new Error("not-found");
+  if (!res.ok) throw new Error(`GET digest failed: ${res.status}`);
+  return (await res.json()) as Digest;
 }

@@ -45,13 +45,13 @@ export default function Methodology() {
         How summaries will be generated
       </h2>
       <p>
-        AI-generated summaries are not yet enabled. When they are, every
+        AI-generated summaries are generated only for selected active threads. Every
         material claim in a summary — review state, outstanding objections,
         numerical results, changes between patch revisions — must cite one or
         more source messages. Reply volume is never treated as approval, and
         merge likelihood is never predicted without explicit evidence in the
         thread. Summaries will be labeled with the model, prompt version, and
-        generation time, and marked uncertain when a thread is incomplete or
+        generation time, and are marked uncertain when a thread is incomplete or
         still active.
       </p>
 

@@ -59,6 +59,7 @@ export interface Thread {
   messageCount: number;
   reviewState: string | null;
   summaryState: SummaryState;
+  rootConfidence: "complete" | "partial";
   createdAt: string;
   updatedAt: string;
 }
@@ -81,6 +82,8 @@ export interface Message {
   bodyText: string | null;
   bodyChecksum: string | null;
   rawObjectKey: string | null;
+  patchIndex: number | null;
+  patchTotal: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -133,6 +136,34 @@ export interface PatchRevision {
   changeNotes: string | null;
 }
 
+export type ReviewSignalType =
+  | "Reviewed-by"
+  | "Acked-by"
+  | "Tested-by"
+  | "Reported-by"
+  | "Suggested-by"
+  | "Co-developed-by"
+  | "Signed-off-by";
+
+export interface ReviewSignal {
+  id: number;
+  threadId: number;
+  messageId: string;
+  signalType: ReviewSignalType;
+  personName: string;
+  sourceUrl: string;
+}
+
+export interface PatchRevisionSummary {
+  seriesId: number;
+  version: number;
+  threadId: number;
+  displaySubject: string;
+  firstPostedAt: string | null;
+  changeNotes: string | null;
+  isCurrent: boolean;
+}
+
 export interface SummaryEvidence {
   claimId: string;
   messageId: string;
@@ -169,4 +200,34 @@ export interface Summary {
   generatedAt: string;
   isCurrent: boolean;
   humanReviewState: "unreviewed" | "confirmed" | "flagged";
+  sourceSetChecksum: string | null;
+}
+
+export type DigestPeriod = "daily" | "weekly";
+
+export interface DigestThreadItem {
+  threadId: number;
+  subject: string;
+  sourceUrl: string;
+  topicNames: string[];
+  messageCount: number;
+  lastActivityAt: string | null;
+  overview: string | null;
+  overviewEvidence: Array<{ messageId: string; sourceUrl: string }>;
+}
+
+export interface DigestContent {
+  mostActiveTopics: Array<{ slug: string; name: string; threadCount: number }>;
+  threads: DigestThreadItem[];
+}
+
+export interface Digest {
+  id: number;
+  periodType: DigestPeriod;
+  periodKey: string;
+  title: string;
+  content: DigestContent;
+  sourceThreadIds: number[];
+  generatedAt: string;
+  publishedAt: string | null;
 }

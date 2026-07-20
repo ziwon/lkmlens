@@ -1,0 +1,7 @@
+# Validated against our ingested linux-cxl corpus.
+layer: CXL memory / interconnect subsystem
+file_patterns:
+  - "drivers/cxl/**"
+stakeholders:
+  - Datacenter memory-expansion platform teams
+  - CXL device vendors

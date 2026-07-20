@@ -1,4 +1,6 @@
 import { useParams } from "react-router";
+import { Link } from "react-router";
+import type { Summary } from "@lkmlens/shared";
 import { fetchThread } from "../lib/api.ts";
 import { useAsync } from "../lib/useAsync.ts";
 
@@ -7,6 +9,28 @@ function Badge({ children }: { children: React.ReactNode }) {
     <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
       {children}
     </span>
+  );
+}
+
+function SummaryClaim({ text, summary }: { text: string; summary: Summary }) {
+  const claimIds = new Set(Array.from(text.matchAll(/\[(c\d+)\]/gi), (match) => match[1]?.toLowerCase()).filter(Boolean));
+  const evidence = summary.content.evidence.filter((item) => claimIds.has(item.claimId.toLowerCase()));
+  return (
+    <div>
+      <span>{text.replace(/\[c\d+\]\s*/gi, "")}</span>{" "}
+      {evidence.map((item, index) => (
+        <a
+          key={`${item.claimId}:${item.messageId}:${index}`}
+          href={item.sourceUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="ml-1 text-xs font-medium text-teal-700 hover:underline dark:text-teal-400"
+          title={`Evidence: ${item.messageId}`}
+        >
+          [{index + 1}]
+        </a>
+      ))}
+    </div>
   );
 }
 
@@ -29,7 +53,7 @@ export default function Thread() {
     );
   }
 
-  const { thread, messages, topics, impact } = result.data;
+  const { thread, messages, topics, impact, revisions, reviewSignals, summary } = result.data;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
@@ -61,6 +85,45 @@ export default function Thread() {
           view on lore.kernel.org ↗
         </a>
       </div>
+
+      {thread.rootConfidence === "partial" && (
+        <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
+          This is a partial thread: an earlier parent message was not available when it was reconstructed.
+        </p>
+      )}
+
+      {revisions.length > 1 && (
+        <section className="mt-6 rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+          <h2 className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Revision timeline</h2>
+          <ol className="mt-3 space-y-3">
+            {revisions.map((revision) => (
+              <li key={revision.threadId} className="text-sm">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Link to={`/threads/${revision.threadId}`} className="font-medium text-teal-700 hover:underline dark:text-teal-400">v{revision.version}</Link>
+                  {revision.isCurrent && <Badge>latest</Badge>}
+                  {revision.firstPostedAt && <span className="text-xs text-slate-500">{revision.firstPostedAt}</span>}
+                </div>
+                {revision.changeNotes && <pre className="mt-1 whitespace-pre-wrap text-xs text-slate-600 dark:text-slate-400">{revision.changeNotes}</pre>}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {reviewSignals.length > 0 && (
+        <section className="mt-6 rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+          <h2 className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Explicit review signals</h2>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {reviewSignals.map((signal) => (
+              <li key={signal.id}>
+                <a href={signal.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs text-emerald-800 hover:underline dark:bg-emerald-950/40 dark:text-emerald-300">
+                  {signal.signalType}: {signal.personName} ↗
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {impact && impact.affectedLayers.length > 0 && (
         <div className="mt-6 rounded-lg border border-teal-200 bg-teal-50/60 p-4 dark:border-teal-900 dark:bg-teal-950/30">
@@ -98,16 +161,38 @@ export default function Thread() {
         </div>
       )}
 
-      <div className="mt-6 rounded-lg border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-        AI-generated summaries ("what changed", "why it matters") aren't enabled yet — see{" "}
-        <a
-          href="/about/methodology"
-          className="underline decoration-slate-400 underline-offset-2"
-        >
-          methodology
-        </a>{" "}
-        for how they'll work once they are.
-      </div>
+      {summary ? (
+        <section className="mt-6 rounded-lg border border-violet-200 bg-violet-50/40 p-5 dark:border-violet-900 dark:bg-violet-950/20">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-xs font-semibold tracking-wide text-violet-800 uppercase dark:text-violet-300">Evidence-linked summary</h2>
+            <span className="text-xs text-violet-700/70 dark:text-violet-400/70">AI-generated · verify against sources</span>
+          </div>
+          <div className="mt-4 space-y-4 text-sm text-slate-700 dark:text-slate-300">
+            <SummaryClaim text={summary.content.overview} summary={summary} />
+            {summary.content.whyItMatters && (
+              <div><h3 className="font-medium text-slate-900 dark:text-white">Why it matters</h3><SummaryClaim text={summary.content.whyItMatters} summary={summary} /></div>
+            )}
+            {[
+              ["Major changes", summary.content.majorChanges],
+              ["Review discussion", summary.content.reviewDiscussion],
+              ["Outstanding questions", summary.content.outstandingQuestions],
+            ].map(([title, items]) => Array.isArray(items) && items.length > 0 && (
+              <div key={String(title)}>
+                <h3 className="font-medium text-slate-900 dark:text-white">{title}</h3>
+                <ul className="mt-1 list-disc space-y-1 pl-5">{items.map((item) => <li key={item}><SummaryClaim text={item} summary={summary} /></li>)}</ul>
+              </div>
+            ))}
+            {summary.content.uncertainties.length > 0 && (
+              <div><h3 className="font-medium text-slate-900 dark:text-white">Uncertainties</h3><ul className="mt-1 list-disc pl-5">{summary.content.uncertainties.map((item) => <li key={item}>{item}</li>)}</ul></div>
+            )}
+          </div>
+          <p className="mt-4 text-xs text-violet-700/70 dark:text-violet-400/70">Model: {summary.model} · prompt: {summary.promptVersion} · generated {summary.generatedAt}</p>
+        </section>
+      ) : (
+        <div className="mt-6 rounded-lg border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+          {thread.summaryState === "stale" ? "The summary is being refreshed after new activity." : "An evidence-linked summary has not been generated for this thread yet."}
+        </div>
+      )}
 
       <h2 className="mt-10 text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
         Messages
@@ -122,6 +207,7 @@ export default function Thread() {
               </span>
               <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-500">
                 {m.postedAt && <span>{m.postedAt}</span>}
+                {m.patchIndex != null && m.patchTotal != null && <span>patch {m.patchIndex}/{m.patchTotal}</span>}
                 <a
                   href={m.sourceUrl}
                   target="_blank"

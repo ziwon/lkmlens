@@ -33,6 +33,11 @@ export interface BuildThreadsResult {
   assignments: MessageThreadAssignment[];
 }
 
+export interface BuildThreadsOptions {
+  /** Existing message -> canonical thread root mappings loaded from storage. */
+  knownRootByMessageId?: ReadonlyMap<string, string>;
+}
+
 function resolveParentId(message: ParsedMessage): string | null {
   return message.inReplyTo ?? message.references.at(-1) ?? null;
 }
@@ -43,7 +48,7 @@ function resolveParentId(message: ParsedMessage): string | null {
  * can run identically whether the batch is a first backfill or an
  * incremental sync of a handful of new messages.
  */
-export function buildThreads(messages: ParsedMessage[]): BuildThreadsResult {
+export function buildThreads(messages: ParsedMessage[], options: BuildThreadsOptions = {}): BuildThreadsResult {
   const byId = new Map<string, ParsedMessage>();
   for (const message of messages) {
     if (message.messageId) byId.set(message.messageId, message);
@@ -69,6 +74,14 @@ export function buildThreads(messages: ParsedMessage[]): BuildThreadsResult {
       const parentId = resolveParentId(msg);
       if (!parentId) break; // true root: no parent header at all
       if (!byId.has(parentId)) {
+        const knownRoot = options.knownRootByMessageId?.get(parentId)
+          ?? [...msg.references].reverse()
+            .map((id) => options.knownRootByMessageId?.get(id))
+            .find((root): root is string => !!root);
+        if (knownRoot) {
+          current = knownRoot;
+          break;
+        }
         confidence = "partial"; // true parent lies outside this batch
         break;
       }
@@ -99,7 +112,9 @@ export function buildThreads(messages: ParsedMessage[]): BuildThreadsResult {
   const threads: ThreadDraft[] = [];
   for (const [rootId, group] of groups) {
     const root = byId.get(rootId);
-    if (!root) continue; // rootId is always drawn from byId by construction
+    // An external root means this batch extends a thread already persisted.
+    // It still gets assignments, but no duplicate ThreadDraft is created.
+    if (!root) continue;
 
     const patchInfo = parsePatchInfo(root.subject);
     const postedDates = group.messageIds

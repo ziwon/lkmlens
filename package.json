@@ -1,7 +1,7 @@
 {
   "name": "lkmlens",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "A clearer view into Linux kernel development.",
   "license": "Apache-2.0",
   "engines": {
@@ -10,22 +10,28 @@
   "scripts": {
     "dev": "pnpm --filter @lkmlens/web dev",
     "build": "pnpm --filter @lkmlens/web build",
-    "typecheck": "pnpm -r --if-present typecheck",
+    "typecheck": "pnpm -r --if-present typecheck && tsc -p functions/tsconfig.json",
     "lint": "pnpm -r --if-present lint",
     "test": "vitest run",
     "db:migrate:local": "wrangler d1 migrations apply lkmlens --local",
     "db:migrate:remote": "wrangler d1 migrations apply lkmlens --remote",
     "db:seed:topics:local": "tsx scripts/seed-topics.ts --local",
     "db:seed:topics:remote": "tsx scripts/seed-topics.ts --remote",
+    "patch-intelligence:local": "tsx scripts/rebuild-patch-intelligence.ts --local",
+    "patch-intelligence:remote": "tsx scripts/rebuild-patch-intelligence.ts --remote",
+    "db:seed:impact:local": "tsx scripts/seed-impact-rules.ts --local",
+    "db:seed:impact:remote": "tsx scripts/seed-impact-rules.ts --remote",
+    "workers:typecheck": "pnpm --filter @lkmlens/summarizer typecheck && pnpm --filter @lkmlens/digest typecheck",
     "pages:deploy": "pnpm --filter @lkmlens/web build && wrangler pages deploy apps/web/dist --project-name=lkmlens"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241224.0",
+    "@cloudflare/workers-types": "^5.20260719.1",
     "@types/node": "^22.10.5",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "vitest": "^3.0.5",
-    "wrangler": "^4.61.1"
+    "wrangler": "^4.61.1",
+    "yaml": "^2.7.0"
   },
   "packageManager": "pnpm@10.23.0"
 }

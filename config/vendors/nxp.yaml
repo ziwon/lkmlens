@@ -1,0 +1,69 @@
+# NXP kernel contribution watchlist.
+#
+# 산업용·자동차·로봇 컨트롤러 쪽에서 중요함. 완성 로봇 업체 이름은 잘 안
+# 보여도, 로봇 관절 제어기나 센서 허브에서 사용하는 SoC 벤더의 이름은 계속
+# 등장함. (Grouped with TI and Renesas in the original product discussion
+# as "ARM industrial MCU/SoC vendors" -- split into per-vendor files here
+# so each vendor's contribution can be tracked independently.)
+#
+# NOTE on confidence: driver-directory-level patterns (soc/imx, ethernet/
+# freescale, net/can/flexcan) are well-established real paths. A few
+# filename-level globs (gpio-mxc, cpufreq imx*) are lower-confidence --
+# not yet validated against ingested data -- and worth checking once we
+# ingest an i.MX/industrial-heavy list.
+vendor: NXP
+description: >
+  i.MX application processors and industrial/automotive MCU lines. Common
+  in robot joint controllers and sensor hubs even when the finished robot
+  brand isn't NXP.
+areas:
+  - name: i.MX SoC platform
+    file_patterns:
+      - "drivers/soc/imx/**"
+      - "arch/arm64/boot/dts/freescale/**"
+    stakeholders:
+      - NXP i.MX platform engineers
+
+  - name: CAN / CAN-FD (FlexCAN)
+    file_patterns:
+      - "drivers/net/can/flexcan/**"
+    stakeholders:
+      - Industrial/automotive CAN bus integrators
+
+  - name: Ethernet
+    file_patterns:
+      - "drivers/net/ethernet/freescale/**"
+    stakeholders:
+      - Industrial networking integrators
+
+  - name: PWM
+    file_patterns:
+      - "drivers/pwm/pwm-imx*"
+    stakeholders:
+      - Motor/actuator control engineers
+
+  - name: SPI / I2C
+    file_patterns:
+      - "drivers/spi/spi-imx.c"
+      - "drivers/i2c/busses/i2c-imx.c"
+    stakeholders:
+      - Sensor hub integrators
+
+  - name: ADC / IIO
+    file_patterns:
+      - "drivers/iio/adc/imx*"
+    stakeholders:
+      - Sensor hub integrators
+
+  - name: GPIO
+    file_patterns:
+      - "drivers/gpio/gpio-mxc.c"
+    stakeholders:
+      - Board bring-up engineers
+
+  - name: Power management
+    file_patterns:
+      - "drivers/cpufreq/imx*"
+      - "drivers/soc/imx/gpc.c"
+    stakeholders:
+      - Power management engineers

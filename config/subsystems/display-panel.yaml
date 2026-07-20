@@ -1,0 +1,5 @@
+layer: Display panel driver
+file_patterns:
+  - "drivers/gpu/drm/panel/**"
+stakeholders:
+  - Device/laptop panel bring-up engineers

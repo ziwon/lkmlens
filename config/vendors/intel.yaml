@@ -1,0 +1,40 @@
+# Intel kernel contribution watchlist.
+#
+# 산업용 로봇, AMR, 제어 PC에서 많이 쓰이기 때문에 하드웨어 플랫폼과 인프라
+# 계층 기여가 큼. Note: arch/x86 itself is shared with AMD and is tracked
+# as a vendor-neutral entry in config/subsystems/architectures.yaml, not
+# here -- these patterns are Intel-exclusive kernel code.
+vendor: Intel
+description: >
+  x86 platform-adjacent silicon (NICs, WiFi, PCIe device management,
+  perf counters, SGX) commonly found in industrial control PCs and AMRs.
+areas:
+  - name: Ethernet and TSN
+    file_patterns:
+      - "drivers/net/ethernet/intel/**"
+    stakeholders:
+      - Industrial networking / TSN integrators
+
+  - name: WiFi
+    file_patterns:
+      - "drivers/net/wireless/intel/**"
+    stakeholders:
+      - Connectivity stack integrators
+
+  - name: PCIe device management (VMD)
+    file_patterns:
+      - "drivers/pci/controller/vmd.c"
+    stakeholders:
+      - Platform/firmware bring-up engineers
+
+  - name: Scheduler and performance counters
+    file_patterns:
+      - "arch/x86/events/intel/**"
+    stakeholders:
+      - Performance/observability platform teams
+
+  - name: Security (SGX)
+    file_patterns:
+      - "arch/x86/kernel/cpu/sgx/**"
+    stakeholders:
+      - Platform security engineers

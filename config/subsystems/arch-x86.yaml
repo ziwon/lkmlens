@@ -1,0 +1,6 @@
+# Shared between Intel and AMD -- vendor-neutral, unlike config/vendors/intel.yaml.
+layer: x86 architecture core
+file_patterns:
+  - "arch/x86/**"
+stakeholders:
+  - x86 platform engineers

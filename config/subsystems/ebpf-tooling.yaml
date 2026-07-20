@@ -1,0 +1,5 @@
+layer: eBPF userspace tooling (libbpf)
+file_patterns:
+  - "tools/lib/bpf/**"
+stakeholders:
+  - eBPF application developers

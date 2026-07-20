@@ -1,0 +1,5 @@
+layer: Virtio/vhost backend
+file_patterns:
+  - "drivers/vhost/**"
+stakeholders:
+  - VM host/hypervisor integration teams

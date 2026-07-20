@@ -1,0 +1,80 @@
+# NVIDIA kernel contribution watchlist.
+#
+# 로봇에서 가장 눈에 띄는 커널 플레이어 중 하나. Jetson이 많은 로봇의 컴퓨팅
+# 플랫폼으로 사용되기 때문에, 로봇 업체의 커널 요구가 NVIDIA를 통해
+# upstream되는 구조가 흔함.
+#
+# Paths validated against real ingested lore.kernel.org data where noted;
+# others are grounded in general kernel-tree knowledge and should be
+# double-checked once we ingest a Tegra/Jetson-heavy list (e.g.
+# linux-tegra, linux-arm-kernel).
+vendor: NVIDIA
+description: >
+  Jetson embedded compute platform, Tegra SoCs, and the open GPU driver
+  stack. A large share of robotics kernel work that touches NVIDIA
+  hardware flows through these trees.
+areas:
+  - name: Tegra SoC platform
+    file_patterns:
+      - "drivers/soc/tegra/**"
+      - "drivers/clk/tegra/**"
+      - "drivers/pinctrl/tegra/**"
+      - "drivers/reset/tegra/**"
+      - "drivers/memory/tegra/**"
+      - "arch/arm64/boot/dts/nvidia/**"
+    stakeholders:
+      - NVIDIA Tegra platform engineers
+      - Jetson-based device bring-up teams
+
+  - name: Jetson platform integration
+    subject_patterns:
+      - "arm64: tegra:"
+      - "arm64: dts: tegra:"
+    stakeholders:
+      - Jetson robotics platform integrators
+
+  - name: GPU and DRM
+    # drivers/gpu/nova-core validated against our ingested dri-devel corpus.
+    file_patterns:
+      - "drivers/gpu/drm/tegra/**"
+      - "drivers/gpu/host1x/**"
+      - "drivers/gpu/nova-core/**"
+      - "drivers/gpu/drm/nouveau/**"
+    subject_patterns:
+      - "drm/tegra:"
+      - "drm/nouveau:"
+    stakeholders:
+      - NVIDIA open-driver / Nouveau maintainers
+      - Jetson graphics-stack integrators
+
+  - name: Camera and media
+    file_patterns:
+      - "drivers/media/platform/nvidia/**"
+      - "drivers/staging/media/tegra-video/**"
+    stakeholders:
+      - Camera/media pipeline integrators (robotics vision systems)
+
+  - name: IOMMU
+    file_patterns:
+      - "drivers/iommu/tegra*"
+    stakeholders:
+      - Platform DMA/IOMMU engineers
+
+  - name: PCIe
+    file_patterns:
+      - "drivers/pci/controller/**tegra**"
+    stakeholders:
+      - PCIe controller/platform engineers
+
+  - name: Power management
+    file_patterns:
+      - "drivers/cpufreq/tegra*"
+      - "drivers/soc/tegra/pmc.c"
+    stakeholders:
+      - Power management engineers (battery-powered robotics platforms)
+
+  - name: Device tree bindings
+    file_patterns:
+      - "Documentation/devicetree/bindings/**/nvidia,*"
+    stakeholders:
+      - Board bring-up engineers

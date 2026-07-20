@@ -1,0 +1,9 @@
+# Validated against our ingested rust-for-linux corpus.
+layer: Rust-for-Linux core abstractions
+file_patterns:
+  - "rust/kernel/**"
+  - "rust/helpers/**"
+  - "rust/bindings/**"
+stakeholders:
+  - Rust-based driver authors
+  - Rust for Linux maintainers

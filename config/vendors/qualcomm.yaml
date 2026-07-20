@@ -1,0 +1,58 @@
+# Qualcomm kernel contribution watchlist.
+#
+# 스마트글라스뿐 아니라 모바일 로봇과 드론에서도 중요함. 특히 DSP·보조
+# 프로세서와 Linux 간 통신을 다루는 remoteproc·rpmsg는 로봇이나 엣지 AI
+# 장치에서도 직접적인 의미가 있음.
+#
+# drivers/gpu/drm/msm/** is validated against our ingested dri-devel
+# corpus. remoteproc/qcom_* is a well-known real path not yet represented
+# in our ingested data (no remoteproc-heavy list ingested yet) -- treat as
+# forward coverage until validated.
+vendor: Qualcomm
+description: >
+  Snapdragon/QCS SoC support, the Hexagon DSP <-> Linux communication
+  stack (remoteproc/rpmsg/QRTR), and the Adreno GPU driver. Central to
+  smartglasses, mobile robots, and drones built on Qualcomm platforms.
+areas:
+  - name: SoC platform support
+    file_patterns:
+      - "drivers/soc/qcom/**"
+      - "arch/arm64/boot/dts/qcom/**"
+    stakeholders:
+      - Qualcomm platform integrators
+      - Device bring-up engineers
+
+  - name: DSP firmware interface (remoteproc / rpmsg / QRTR)
+    file_patterns:
+      - "drivers/remoteproc/qcom_*"
+      - "drivers/rpmsg/qcom_*"
+      - "net/qrtr/**"
+    subject_patterns:
+      - "qcom: remoteproc:"
+      - "remoteproc: qcom"
+      - "rpmsg: qcom"
+    stakeholders:
+      - Qualcomm platform integrators
+      - Device bring-up engineers (Hexagon DSP / co-processor comms)
+
+  - name: Adreno GPU
+    file_patterns:
+      - "drivers/gpu/drm/msm/**"
+    subject_patterns:
+      - "drm/msm:"
+    stakeholders:
+      - Qualcomm platform integrators
+      - Android graphics-stack team
+
+  - name: Camera and media
+    file_patterns:
+      - "drivers/media/platform/qcom/**"
+    stakeholders:
+      - Camera/media pipeline integrators (robotics vision, smartglasses)
+
+  - name: Power management
+    file_patterns:
+      - "drivers/soc/qcom/rpmh*"
+      - "drivers/cpufreq/qcom-cpufreq*"
+    stakeholders:
+      - Power management engineers (battery-powered mobile/wearable platforms)

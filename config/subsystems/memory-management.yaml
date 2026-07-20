@@ -1,0 +1,7 @@
+# Validated against our ingested linux-mm corpus.
+layer: Core memory management (mm)
+file_patterns:
+  - "mm/**"
+stakeholders:
+  - Memory allocator/reclaim subsystem maintainers
+  - Large-memory workload platform teams
