@@ -1,18 +1,16 @@
 # Qualcomm kernel contribution watchlist.
 #
-# 스마트글라스뿐 아니라 모바일 로봇과 드론에서도 중요함. 특히 DSP·보조
-# 프로세서와 Linux 간 통신을 다루는 remoteproc·rpmsg는 로봇이나 엣지 AI
-# 장치에서도 직접적인 의미가 있음.
+# Covers Qualcomm SoC platform support and communication between Linux and
+# DSP or auxiliary processors through remoteproc, rpmsg, and QRTR.
 #
-# drivers/gpu/drm/msm/** is validated against our ingested dri-devel
-# corpus. remoteproc/qcom_* is a well-known real path not yet represented
-# in our ingested data (no remoteproc-heavy list ingested yet) -- treat as
-# forward coverage until validated.
+# drivers/gpu/drm/msm/** has been observed in the indexed dri-devel corpus.
+# The remoteproc/qcom_* path is included for forward coverage and should be
+# reviewed as remoteproc-focused data becomes available.
 vendor: Qualcomm
 description: >
   Snapdragon/QCS SoC support, the Hexagon DSP <-> Linux communication
-  stack (remoteproc/rpmsg/QRTR), and the Adreno GPU driver. Central to
-  smartglasses, mobile robots, and drones built on Qualcomm platforms.
+  stack (remoteproc/rpmsg/QRTR), and the Adreno GPU driver, including
+  platform, media, and power-management integration areas.
 areas:
   - name: SoC platform support
     file_patterns:

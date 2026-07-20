@@ -1,13 +1,12 @@
 # Texas Instruments kernel contribution watchlist.
 #
-# 산업용·자동차·로봇 컨트롤러 쪽에서 중요함. (Grouped with NXP and Renesas
-# in the original product discussion; split into per-vendor files here so
-# each vendor's contribution can be tracked independently.)
+# Covers TI SoC and peripheral support used in industrial, automotive, and
+# robotics controllers. Vendor-specific rules are kept in a separate file so
+# they can be reviewed and maintained independently.
 #
-# NOTE on confidence: TI has an unusually large surface of small
-# ADC/DAC/sensor drivers (they're a major analog-IC vendor); the two IIO
-# globs below are representative, not exhaustive. Worth expanding once we
-# ingest a TI SoC/analog-heavy list.
+# Coverage note: TI maintains a broad range of ADC, DAC, and sensor drivers.
+# The IIO patterns below are representative rather than exhaustive and should
+# be expanded as coverage requirements are validated.
 vendor: Texas Instruments
 description: >
   Sitara/OMAP ARM SoCs and a very large analog/sensor IC portfolio

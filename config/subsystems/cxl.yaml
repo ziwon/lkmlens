@@ -1,4 +1,4 @@
-# Validated against our ingested linux-cxl corpus.
+# Patterns have been observed in the indexed linux-cxl corpus.
 layer: CXL memory / interconnect subsystem
 file_patterns:
   - "drivers/cxl/**"

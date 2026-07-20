@@ -1,4 +1,4 @@
-# Validated against our ingested bpf corpus.
+# Patterns have been observed in the indexed bpf corpus.
 layer: Kernel BPF core / verifier
 file_patterns:
   - "kernel/bpf/**"

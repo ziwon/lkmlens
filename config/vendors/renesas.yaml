@@ -1,8 +1,8 @@
 # Renesas kernel contribution watchlist.
 #
-# 산업용·자동차·로봇 컨트롤러 쪽에서 중요함. (Grouped with NXP and TI in
-# the original product discussion; split into per-vendor files here so
-# each vendor's contribution can be tracked independently.)
+# Covers Renesas R-Car and RZ platform support used in automotive and
+# industrial controllers. Vendor-specific rules are kept in a separate file
+# so they can be reviewed and maintained independently.
 vendor: Renesas
 description: >
   R-Car and RZ ARM SoCs, common in automotive and industrial control

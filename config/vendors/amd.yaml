@@ -1,7 +1,6 @@
 # AMD kernel contribution watchlist.
 #
-# Validated against our ingested dri-devel corpus (drivers/gpu/drm/amd/**
-# matched real ingested threads during development).
+# drivers/gpu/drm/amd/** has been observed in the indexed dri-devel corpus.
 vendor: AMD
 description: >
   AMD's open GPU driver stack (amdgpu) is one of the largest single

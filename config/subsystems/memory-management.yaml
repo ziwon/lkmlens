@@ -1,4 +1,4 @@
-# Validated against our ingested linux-mm corpus.
+# Patterns have been observed in the indexed linux-mm corpus.
 layer: Core memory management (mm)
 file_patterns:
   - "mm/**"

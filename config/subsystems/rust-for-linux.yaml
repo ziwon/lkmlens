@@ -1,4 +1,4 @@
-# Validated against our ingested rust-for-linux corpus.
+# Patterns have been observed in the indexed rust-for-linux corpus.
 layer: Rust-for-Linux core abstractions
 file_patterns:
   - "rust/kernel/**"

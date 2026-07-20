@@ -1,18 +1,15 @@
 # NVIDIA kernel contribution watchlist.
 #
-# 로봇에서 가장 눈에 띄는 커널 플레이어 중 하나. Jetson이 많은 로봇의 컴퓨팅
-# 플랫폼으로 사용되기 때문에, 로봇 업체의 커널 요구가 NVIDIA를 통해
-# upstream되는 구조가 흔함.
+# Covers the Tegra SoC, Jetson platform integration, and open GPU driver paths
+# represented in the Linux kernel tree.
 #
-# Paths validated against real ingested lore.kernel.org data where noted;
-# others are grounded in general kernel-tree knowledge and should be
-# double-checked once we ingest a Tegra/Jetson-heavy list (e.g.
-# linux-tegra, linux-arm-kernel).
+# Some paths have been observed in indexed lore.kernel.org data. Remaining
+# paths should be reviewed as Tegra- and Jetson-focused coverage expands.
 vendor: NVIDIA
 description: >
   Jetson embedded compute platform, Tegra SoCs, and the open GPU driver
-  stack. A large share of robotics kernel work that touches NVIDIA
-  hardware flows through these trees.
+  stack, including platform, graphics, media, IOMMU, PCIe, and power
+  management integration areas.
 areas:
   - name: Tegra SoC platform
     file_patterns:
@@ -34,7 +31,7 @@ areas:
       - Jetson robotics platform integrators
 
   - name: GPU and DRM
-    # drivers/gpu/nova-core validated against our ingested dri-devel corpus.
+    # drivers/gpu/nova-core has been observed in the indexed dri-devel corpus.
     file_patterns:
       - "drivers/gpu/drm/tegra/**"
       - "drivers/gpu/host1x/**"

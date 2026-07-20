@@ -1,21 +1,17 @@
 # NXP kernel contribution watchlist.
 #
-# 산업용·자동차·로봇 컨트롤러 쪽에서 중요함. 완성 로봇 업체 이름은 잘 안
-# 보여도, 로봇 관절 제어기나 센서 허브에서 사용하는 SoC 벤더의 이름은 계속
-# 등장함. (Grouped with TI and Renesas in the original product discussion
-# as "ARM industrial MCU/SoC vendors" -- split into per-vendor files here
-# so each vendor's contribution can be tracked independently.)
+# Covers NXP i.MX platform support and peripheral drivers commonly used in
+# industrial, automotive, and robotics controllers. Vendor-specific rules are
+# kept in a separate file so they can be reviewed and maintained independently.
 #
-# NOTE on confidence: driver-directory-level patterns (soc/imx, ethernet/
-# freescale, net/can/flexcan) are well-established real paths. A few
-# filename-level globs (gpio-mxc, cpufreq imx*) are lower-confidence --
-# not yet validated against ingested data -- and worth checking once we
-# ingest an i.MX/industrial-heavy list.
+# Coverage note: directory-level patterns such as soc/imx, ethernet/freescale,
+# and net/can/flexcan map to established kernel paths. Filename-level globs
+# should be reviewed as additional i.MX-focused data becomes available.
 vendor: NXP
 description: >
   i.MX application processors and industrial/automotive MCU lines. Common
-  in robot joint controllers and sensor hubs even when the finished robot
-  brand isn't NXP.
+  integration areas include controller platforms, sensor hubs, networking,
+  and board-level peripherals.
 areas:
   - name: i.MX SoC platform
     file_patterns:
