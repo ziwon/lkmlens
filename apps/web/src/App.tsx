@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router";
 import { Layout } from "./components/Layout.tsx";
 import Home from "./pages/Home.tsx";
 import Search from "./pages/Search.tsx";
+import Thread from "./pages/Thread.tsx";
 import About from "./pages/About.tsx";
 import Methodology from "./pages/Methodology.tsx";
 import Privacy from "./pages/Privacy.tsx";
@@ -15,6 +16,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="search" element={<Search />} />
+        <Route path="threads/:id" element={<Thread />} />
         <Route path="about" element={<About />} />
         <Route path="about/methodology" element={<Methodology />} />
         <Route path="privacy" element={<Privacy />} />

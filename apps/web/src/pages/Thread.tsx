@@ -1,0 +1,145 @@
+import { useParams } from "react-router";
+import { fetchThread } from "../lib/api.ts";
+import { useAsync } from "../lib/useAsync.ts";
+
+function Badge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+      {children}
+    </span>
+  );
+}
+
+export default function Thread() {
+  const { id = "" } = useParams();
+  const result = useAsync(() => fetchThread(id), [id]);
+
+  if (result.status === "loading") {
+    return <p className="mx-auto max-w-3xl px-4 py-10 text-sm text-slate-500 dark:text-slate-400">Loading…</p>;
+  }
+
+  if (result.status === "error") {
+    const notFound = result.error.message === "not-found";
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-10">
+        <p className="text-sm text-red-600 dark:text-red-400">
+          {notFound ? "Thread not found." : `Couldn't load thread (${result.error.message}).`}
+        </p>
+      </div>
+    );
+  }
+
+  const { thread, messages, topics, impact } = result.data;
+
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+        {thread.threadType && <Badge>{thread.threadType}</Badge>}
+        {thread.patchVersion != null && <Badge>v{thread.patchVersion}</Badge>}
+        {thread.mailingList && <Badge>list:{thread.mailingList}</Badge>}
+        {topics.map((t) => (
+          <Badge key={t.slug}>{t.name}</Badge>
+        ))}
+      </div>
+
+      <h1 className="mt-3 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">
+        {thread.displaySubject}
+      </h1>
+
+      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-slate-500 dark:text-slate-400">
+        {thread.authorName && <span>{thread.authorName}</span>}
+        {thread.firstPostedAt && <span>{thread.firstPostedAt}</span>}
+        <span>
+          {thread.messageCount} message{thread.messageCount === 1 ? "" : "s"}
+        </span>
+        <a
+          href={thread.sourceUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="underline decoration-slate-400 underline-offset-2 hover:text-slate-700 dark:hover:text-slate-300"
+        >
+          view on lore.kernel.org ↗
+        </a>
+      </div>
+
+      {impact && impact.affectedLayers.length > 0 && (
+        <div className="mt-6 rounded-lg border border-teal-200 bg-teal-50/60 p-4 dark:border-teal-900 dark:bg-teal-950/30">
+          <h2 className="text-xs font-semibold tracking-wide text-teal-800 uppercase dark:text-teal-400">
+            Practical impact
+            <span className="ml-2 font-normal normal-case text-teal-700/70 dark:text-teal-500/70">
+              rule-based, not AI-generated
+            </span>
+          </h2>
+
+          <dl className="mt-3 space-y-3 text-sm">
+            <div>
+              <dt className="font-medium text-slate-700 dark:text-slate-300">Affected layer</dt>
+              <dd className="mt-0.5 text-slate-600 dark:text-slate-400">{impact.affectedLayers.join(", ")}</dd>
+            </div>
+            {impact.likelyStakeholders.length > 0 && (
+              <div>
+                <dt className="font-medium text-slate-700 dark:text-slate-300">Likely stakeholders</dt>
+                <dd className="mt-0.5 text-slate-600 dark:text-slate-400">
+                  {impact.likelyStakeholders.join(", ")}
+                </dd>
+              </div>
+            )}
+            {impact.suggestedAction && (
+              <div>
+                <dt className="font-medium text-slate-700 dark:text-slate-300">Suggested action</dt>
+                <dd className="mt-0.5 text-slate-600 dark:text-slate-400">{impact.suggestedAction}</dd>
+              </div>
+            )}
+          </dl>
+
+          <p className="mt-3 text-xs text-teal-700/70 dark:text-teal-500/70">
+            Matched by: {impact.matchedBy.join(", ")}
+          </p>
+        </div>
+      )}
+
+      <div className="mt-6 rounded-lg border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+        AI-generated summaries ("what changed", "why it matters") aren't enabled yet — see{" "}
+        <a
+          href="/about/methodology"
+          className="underline decoration-slate-400 underline-offset-2"
+        >
+          methodology
+        </a>{" "}
+        for how they'll work once they are.
+      </div>
+
+      <h2 className="mt-10 text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+        Messages
+      </h2>
+      <ol className="mt-4 space-y-6 border-l border-slate-200 pl-6 dark:border-slate-800">
+        {messages.map((m) => (
+          <li key={m.messageId} className="relative">
+            <div className="absolute top-1.5 -left-[29px] size-2.5 rounded-full bg-slate-300 dark:bg-slate-700" />
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <span className="font-medium text-slate-900 dark:text-slate-100">
+                {m.authorName ?? "Unknown"}
+              </span>
+              <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-500">
+                {m.postedAt && <span>{m.postedAt}</span>}
+                <a
+                  href={m.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline decoration-slate-400 underline-offset-2 hover:text-slate-700 dark:hover:text-slate-300"
+                >
+                  lore ↗
+                </a>
+              </div>
+            </div>
+            {m.bodyText && (
+              <pre className="mt-2 max-h-96 overflow-auto rounded-md bg-slate-50 p-3 text-xs whitespace-pre-wrap text-slate-700 dark:bg-slate-900 dark:text-slate-300">
+                {m.bodyText}
+              </pre>
+            )}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}

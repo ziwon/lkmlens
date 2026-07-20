@@ -12,6 +12,10 @@
  * `git ls-remote https://lore.kernel.org/<list>/<epoch+1>` if a source
  * stops finding new commits despite known upstream activity.
  *
+ * After collection, also recomputes deterministic patch-impact tags
+ * (packages/impact) over all threads, so new patches get affected-layer/
+ * stakeholder tags without a separate manual step.
+ *
  * Usage: tsx scripts/collect-all.ts
  */
 
@@ -36,7 +40,15 @@ const SOURCES: Source[] = [
 ];
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const BACKFILL_SCRIPT = join(REPO_ROOT, "scripts", "backfill.ts");
+const TSX_BIN = join(REPO_ROOT, "node_modules", ".bin", "tsx");
+
+function runScript(scriptName: string, args: string[]): boolean {
+  const result = spawnSync(TSX_BIN, [join(REPO_ROOT, "scripts", scriptName), ...args], {
+    stdio: "inherit",
+    cwd: REPO_ROOT,
+  });
+  return result.status === 0;
+}
 
 function main() {
   const failures: string[] = [];
@@ -45,17 +57,15 @@ function main() {
     const label = `${source.inbox}/${source.epoch}`;
     console.log(`\n=== ${label} ===`);
 
-    const result = spawnSync(
-      join(REPO_ROOT, "node_modules", ".bin", "tsx"),
-      [BACKFILL_SCRIPT, "--inbox", source.inbox, "--epoch", String(source.epoch), "--remote"],
-      { stdio: "inherit", cwd: REPO_ROOT },
-    );
-
-    if (result.status !== 0) {
-      console.error(`FAILED: ${label} (exit ${result.status})`);
+    const ok = runScript("backfill.ts", ["--inbox", source.inbox, "--epoch", String(source.epoch), "--remote"]);
+    if (!ok) {
+      console.error(`FAILED: ${label}`);
       failures.push(label);
     }
   }
+
+  console.log("\n=== compute-impact ===");
+  runScript("compute-impact.ts", ["--remote"]);
 
   if (failures.length > 0) {
     console.error(`\n${failures.length}/${SOURCES.length} source(s) failed: ${failures.join(", ")}`);

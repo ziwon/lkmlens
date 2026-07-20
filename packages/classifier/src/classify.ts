@@ -13,7 +13,7 @@
  * reused by both the indexing Workflow and offline batch reclassification.
  */
 
-import type { TopicMatch, TopicRule } from "@lkmlens/shared";
+import { globMatch, type TopicMatch, type TopicRule } from "@lkmlens/shared";
 
 export interface ClassifiableMessage {
   subject: string;
@@ -133,21 +133,6 @@ function wordMatch(value: string, pattern: string): boolean {
   const isAcronym = pattern.length > 1 && /^[A-Z0-9]+$/.test(pattern);
   const re = new RegExp(`(?<![\\w-])${escaped}(?![\\w-])`, isAcronym ? "" : "i");
   return re.test(value);
-}
-
-/** Minimal glob matcher supporting `*` (single segment) and `**` (any depth). */
-function globMatch(pattern: string, path: string): boolean {
-  const escaped = pattern
-    .split("**")
-    .map((segment) =>
-      segment
-        .split("*")
-        .map((literal) => literal.replace(/[.+^${}()|[\]\\]/g, "\\$&"))
-        .join("[^/]*"),
-    )
-    .join(".*");
-  const re = new RegExp(`^${escaped}$`);
-  return re.test(path);
 }
 
 function roundScore(score: number): number {

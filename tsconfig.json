@@ -21,6 +21,7 @@
       "@lkmlens/mail-parser": ["packages/mail-parser/src/index.ts"],
       "@lkmlens/thread-builder": ["packages/thread-builder/src/index.ts"],
       "@lkmlens/lore-client": ["packages/lore-client/src/index.ts"],
+      "@lkmlens/impact": ["packages/impact/src/index.ts"],
       "@lkmlens/ai": ["packages/ai/src/index.ts"],
       "@lkmlens/ui": ["packages/ui/src/index.ts"]
     }

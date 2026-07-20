@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { SearchBox } from "../components/SearchBox.tsx";
 import { fetchSearch } from "../lib/api.ts";
 import { useAsync } from "../lib/useAsync.ts";
@@ -34,26 +34,36 @@ export default function Search() {
                 key={r.messageId}
                 className="rounded-lg border border-slate-200 p-4 dark:border-slate-800"
               >
-                <a
-                  href={r.sourceUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-medium text-slate-900 hover:underline dark:text-slate-100"
-                >
-                  {r.subject}
-                </a>
+                {r.threadId != null ? (
+                  <Link
+                    to={`/threads/${r.threadId}`}
+                    className="font-medium text-slate-900 hover:underline dark:text-slate-100"
+                  >
+                    {r.subject}
+                  </Link>
+                ) : (
+                  <span className="font-medium text-slate-900 dark:text-slate-100">{r.subject}</span>
+                )}
                 <p
                   className="mt-1 text-sm text-slate-600 dark:text-slate-400"
                   // Snippets come from FTS5 snippet() and only ever contain
                   // <mark>/</mark> around matched terms — no user HTML.
                   dangerouslySetInnerHTML={{ __html: r.snippet }}
                 />
-                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-500">
+                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-500">
                   {r.authorName && <span>{r.authorName}</span>}
                   {r.mailingList && <span>list:{r.mailingList}</span>}
                   {r.threadType && <span>{r.threadType}</span>}
                   {r.patchVersion != null && <span>v{r.patchVersion}</span>}
                   {r.postedAt && <span>{r.postedAt}</span>}
+                  <a
+                    href={r.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline decoration-slate-400 underline-offset-2 hover:text-slate-700 dark:hover:text-slate-300"
+                  >
+                    view on lore ↗
+                  </a>
                 </div>
               </li>
             ))}

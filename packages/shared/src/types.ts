@@ -101,6 +101,21 @@ export interface ThreadTopic {
   updatedAt: string;
 }
 
+/**
+ * Deterministic patch-impact tags for a thread (packages/impact) --
+ * affected layer / likely stakeholders / a generic action hint, all rule-
+ * matched and explainable. No AI-generated prose; that's a later
+ * milestone (see docs/PLANNING.md section 7.8).
+ */
+export interface ThreadImpact {
+  threadId: number;
+  affectedLayers: string[];
+  likelyStakeholders: string[];
+  suggestedAction: string | null;
+  matchedBy: string[];
+  generatedAt: string;
+}
+
 export interface PatchSeries {
   id: number;
   seriesKey: string;
