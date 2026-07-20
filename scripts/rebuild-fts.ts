@@ -10,12 +10,7 @@
  *   tsx scripts/rebuild-fts.ts --remote
  */
 
-import { spawnSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-
-const DB_NAME = "lkmlens";
+import { execD1File, parseD1Target } from "./lib/d1.js";
 
 const SQL = `
 DELETE FROM message_search;
@@ -37,34 +32,8 @@ FROM messages m;
 `.trim();
 
 function main() {
-  const target = process.argv.includes("--remote")
-    ? "--remote"
-    : process.argv.includes("--local")
-      ? "--local"
-      : null;
-
-  if (!target) {
-    console.error("Usage: tsx scripts/rebuild-fts.ts --local | --remote");
-    process.exit(1);
-  }
-
-  const dir = mkdtempSync(join(tmpdir(), "lkmlens-rebuild-fts-"));
-  const file = join(dir, "rebuild-fts.sql");
-  writeFileSync(file, SQL, "utf8");
-
-  console.log(`Rebuilding message_search (${target.slice(2)}) via ${file} ...`);
-
-  const result = spawnSync(
-    "wrangler",
-    ["d1", "execute", DB_NAME, target, "--file", file],
-    { stdio: "inherit" },
-  );
-
-  if (result.status !== 0) {
-    console.error("wrangler d1 execute failed");
-    process.exit(result.status ?? 1);
-  }
-
+  const target = parseD1Target(process.argv);
+  execD1File(SQL, target, "Rebuilding message_search");
   console.log("Done.");
 }
 

@@ -115,11 +115,23 @@ function startsWithIgnoreCase(value: string | null | undefined, pattern: string)
   return value.toLowerCase().startsWith(pattern.toLowerCase());
 }
 
-/** Case-insensitive whole-word/phrase match, tolerant of punctuation boundaries. */
+/**
+ * Whole-word/phrase match, tolerant of punctuation boundaries.
+ *
+ * All-uppercase patterns (GPU, CXL, RDMA, NUMA, ...) are typically acronyms
+ * and are matched case-sensitively: kernel-list prose reliably capitalizes
+ * them, while a lowercase occurrence is much more likely to be an unrelated
+ * code identifier or module name (e.g. Rust's `pub mod gpu;`). Verified
+ * against a real false positive from live lore.kernel.org ingestion — see
+ * docs/PLANNING.md section 6, "generic words such as GPU... produce noisy
+ * topic pages". Mixed-case patterns (eBPF, io_uring, folio) stay
+ * case-insensitive.
+ */
 function wordMatch(value: string, pattern: string): boolean {
   if (!value || !pattern) return false;
   const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const re = new RegExp(`(?<![\\w-])${escaped}(?![\\w-])`, "i");
+  const isAcronym = pattern.length > 1 && /^[A-Z0-9]+$/.test(pattern);
+  const re = new RegExp(`(?<![\\w-])${escaped}(?![\\w-])`, isAcronym ? "" : "i");
   return re.test(value);
 }
 

@@ -39,3 +39,6 @@ coverage/
 
 # Kept local-only, not pushed to the public GitHub repo.
 /docs/PLANNING.md
+
+# Local git mirrors of lore.kernel.org archives (scripts/backfill.ts)
+/.data/

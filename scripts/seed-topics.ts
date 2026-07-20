@@ -15,12 +15,7 @@
  *   tsx scripts/seed-topics.ts --remote
  */
 
-import { spawnSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-
-const DB_NAME = "lkmlens";
+import { execD1File, parseD1Target } from "./lib/d1.js";
 
 // Relative rule weights follow the priority guidance in
 // docs/PLANNING.md section 6: changed-file path > mailing list ≈
@@ -59,6 +54,9 @@ function filePath(...patterns: string[]): RuleSeed[] {
 }
 function patchPrefix(...patterns: string[]): RuleSeed[] {
   return patterns.map((pattern) => ({ type: "patch_prefix", pattern, weight: WEIGHT.patchPrefix }));
+}
+function subjectTerm(...patterns: string[]): RuleSeed[] {
+  return patterns.map((pattern) => ({ type: "subject", pattern, weight: WEIGHT.subject }));
 }
 
 const TOPICS: TopicSeed[] = [
@@ -164,7 +162,12 @@ const TOPICS: TopicSeed[] = [
     description: "Containers, namespaces, and cgroups.",
     displayOrder: 9,
     rules: [
-      ...alias("container", "namespace", "cgroup"),
+      // Subject-only, not alias (subject+body): "container"/"namespace" are
+      // common English words and common code identifiers (e.g. a Rust
+      // variable named `container`), so body-only matches are too noisy —
+      // confirmed against real lore.kernel.org ingestion data. Matches
+      // docs/PLANNING.md section 6's own "Body-only keyword: Low" guidance.
+      ...subjectTerm("container", "namespace", "cgroup"),
       ...mailingList("cgroups"),
       ...filePath("kernel/cgroup/**", "kernel/nsproxy.c"),
       ...patchPrefix("[PATCH cgroup"),
@@ -218,35 +221,9 @@ function buildSql(): string {
 }
 
 function main() {
-  const target = process.argv.includes("--remote")
-    ? "--remote"
-    : process.argv.includes("--local")
-      ? "--local"
-      : null;
-
-  if (!target) {
-    console.error("Usage: tsx scripts/seed-topics.ts --local | --remote");
-    process.exit(1);
-  }
-
+  const target = parseD1Target(process.argv);
   const sql = buildSql();
-  const dir = mkdtempSync(join(tmpdir(), "lkmlens-seed-topics-"));
-  const file = join(dir, "seed-topics.sql");
-  writeFileSync(file, sql, "utf8");
-
-  console.log(`Seeding ${TOPICS.length} topics (${target.slice(2)}) via ${file} ...`);
-
-  const result = spawnSync(
-    "wrangler",
-    ["d1", "execute", DB_NAME, target, "--file", file],
-    { stdio: "inherit" },
-  );
-
-  if (result.status !== 0) {
-    console.error("wrangler d1 execute failed");
-    process.exit(result.status ?? 1);
-  }
-
+  execD1File(sql, target, `Seeding ${TOPICS.length} topics`);
   console.log("Done.");
 }
 

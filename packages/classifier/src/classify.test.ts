@@ -31,7 +31,7 @@ const containers: TopicRuleSet = {
 
 describe("classifyMessage", () => {
   it("sums matched rule weights and explains the match", () => {
-    const [top] = classifyMessage(
+    const matches = classifyMessage(
       {
         subject: "[PATCH bpf-next] xdp: fix verifier edge case",
         mailingList: "bpf",
@@ -40,6 +40,9 @@ describe("classifyMessage", () => {
       },
       [ebpf, containers],
     );
+    const top = matches[0];
+    expect(top).toBeDefined();
+    if (!top) return;
 
     expect(top.topic).toBe("ebpf");
     expect(top.score).toBeCloseTo(3 + 3 + 4 + 1.5 + 0.5);
@@ -66,6 +69,29 @@ describe("classifyMessage", () => {
 
     // "container" must not match inside "containerized" (word-boundary rule).
     expect(matches).toHaveLength(0);
+  });
+
+  it("does not false-positive an all-caps acronym alias against a lowercase code identifier", () => {
+    // Real false positive found ingesting rust-for-linux: a patch about
+    // id_pool/bitmap quoted a diff touching `pub mod gpu;` (a Rust module),
+    // which used to match the "GPU" alias for the GPU & Graphics topic.
+    const gpu: TopicRuleSet = { topicSlug: "gpu", rules: [rule({ ruleType: "alias", pattern: "GPU", weight: 1.5 })] };
+
+    const falsePositive = classifyMessage(
+      {
+        subject: "Re: [PATCH] rust: bitmap: encourage using xarray/maple_tree instead of id_pool",
+        bodyText: "> +++ b/rust/kernel/lib.rs\n>  pub mod gpu;\n>  #[cfg(CONFIG_I2C = \"y\")]",
+      },
+      [gpu],
+    );
+    expect(falsePositive).toHaveLength(0);
+
+    const truePositive = classifyMessage(
+      { subject: "drm/amdgpu: fix GPU reset path", bodyText: "" },
+      [gpu],
+    );
+    expect(truePositive).toHaveLength(1);
+    expect(truePositive[0]?.topic).toBe("gpu");
   });
 
   it("subtracts negative rules and can suppress a topic entirely", () => {
