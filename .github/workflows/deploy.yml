@@ -124,5 +124,5 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           packageManager: pnpm
-          command: pages deploy apps/web/dist --project-name=lkmlens
+          command: pages deploy apps/web/dist --project-name=kernel-lens
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}

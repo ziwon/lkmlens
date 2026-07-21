@@ -1,0 +1,2 @@
+# Legacy domain permanent 301 redirects to new canonical domain
+https://lkmlens.pages.dev/* https://kernel-lens.pages.dev/:splat 301!
