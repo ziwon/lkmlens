@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "lkmlens",
+  "name": "kernel-lens",
   "pages_build_output_dir": "apps/web/dist",
   "compatibility_date": "2026-07-20",
   "compatibility_flags": ["nodejs_compat"],
@@ -8,7 +8,8 @@
     "AI_PROVIDER": "google-gemini",
     "AI_MODEL": "gemini-3.1-flash-lite",
     "AI_DAILY_REQUEST_LIMIT": "100",
-    "AI_WARNING_PERCENT": "80"
+    "AI_WARNING_PERCENT": "80",
+    "PUBLIC_SITE_URL": "https://kernel-lens.pages.dev"
   },
   "d1_databases": [
     {
