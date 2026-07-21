@@ -1,19 +1,27 @@
-# LKMLens
+# Kernel Lens
 
-> **Understand what kernel changes mean for your hardware and product.**
+> **A clearer view into Linux kernel development.**
 
-LKMLens is an open-source Linux kernel intelligence service for hardware and
+Kernel Lens is an open-source Linux kernel intelligence service for hardware and
 product teams. It follows selected public discussions from
 [lore.kernel.org](https://lore.kernel.org/), reconstructs patch series, maps
 changes to vendor and subsystem watchlists, and records observed progress from
 submission through maintainer trees, mainline, releases, stable backports, and
 Android common kernels.
 
-**Live:** https://lkmlens.pages.dev *(not yet deployed)*
+**Live Production URL:** https://kernel-lens.pages.dev
+**Legacy URL:** https://lkmlens.pages.dev *(permanently redirected via 301)*
 
-LKMLens is not affiliated with kernel.org, the Linux Foundation, or the
+Kernel Lens is not affiliated with kernel.org, the Linux Foundation, or the
 Linux kernel project. lore.kernel.org remains the canonical source and
-archive; LKMLens is a discovery and interpretation layer on top of it.
+archive; Kernel Lens is a discovery and interpretation layer on top of it.
+
+## System & Domain Migration
+
+- **Public Brand Name:** Kernel Lens
+- **Production URL:** `https://kernel-lens.pages.dev`
+- **Legacy URL:** `https://lkmlens.pages.dev`
+- **Internal Database & Bindings:** Retained as `lkmlens` for uninterrupted D1 data and worker collector state.
 
 ## Status
 
