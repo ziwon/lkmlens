@@ -41,7 +41,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ env, request }) => {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>LKMLens Weekly Digests</title>
+    <title>Kernel Lens Weekly Digests</title>
     <link>${escapeXml(`${origin}/digests`)}</link>
     <description>Weekly reports of selected Linux kernel product signals with links to public evidence.</description>
     <language>en</language>

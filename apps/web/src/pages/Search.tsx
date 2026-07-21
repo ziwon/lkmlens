@@ -24,7 +24,7 @@ export default function Search() {
         {results.status === "success" && results.data.length === 0 && (
           <div className="rounded-lg border border-dashed border-slate-300 p-6 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
             No results for <span className="font-medium">"{q}"</span>. Indexing hasn't started
-            yet — LKMLens is in early development and doesn't have any messages indexed.
+            yet — Kernel Lens is in early development and doesn't have any messages indexed.
           </div>
         )}
         {results.status === "success" && results.data.length > 0 && (

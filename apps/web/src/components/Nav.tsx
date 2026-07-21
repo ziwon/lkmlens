@@ -11,8 +11,8 @@ export function Nav() {
           className="focus-ring flex items-center gap-2 rounded-md text-lg font-semibold tracking-tight"
         >
           <Logo className="size-6 text-emerald-600 dark:text-emerald-400" />
-          LKMLens
-          <span className="hidden border-l border-slate-200 pl-2 text-xs font-normal text-slate-400 lg:inline dark:border-slate-800">Kernel change intelligence</span>
+          Kernel Lens
+          <span className="hidden border-l border-slate-200 pl-2 text-xs font-normal text-slate-400 lg:inline dark:border-slate-800">A clearer view into Linux kernel development</span>
         </Link>
 
         <nav aria-label="Primary" className="flex items-center gap-0.5 text-sm">

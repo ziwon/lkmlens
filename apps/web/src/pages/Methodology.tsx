@@ -7,9 +7,9 @@ export default function Methodology() {
         Where the data comes from
       </h2>
       <p>
-        LKMLens indexes selected messages from lore.kernel.org, the public
+        Kernel Lens indexes selected messages from lore.kernel.org, the public
         archive of Linux kernel mailing lists. Every indexed message, thread,
-        summary, and claim links back to its source message on lore. LKMLens
+        summary, and claim links back to its source message on lore. Kernel Lens
         never presents itself as the canonical archive — lore.kernel.org is.
       </p>
 
@@ -57,7 +57,7 @@ export default function Methodology() {
         How integration status is determined
       </h2>
       <p>
-        LKMLens records a sequence of observable milestones: LKML submission,
+        Kernel Lens records a sequence of observable milestones: LKML submission,
         explicit <code>Reviewed-by</code> or <code>Acked-by</code> trailers,
         presence in a public maintainer tree, a mainline commit, the first Linux
         release containing that commit, stable backports, and Android common

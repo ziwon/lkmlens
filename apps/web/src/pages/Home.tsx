@@ -15,7 +15,7 @@ export default function Home() {
 
   return (
     <div>
-      <h1 className="sr-only">LKMLens kernel change intelligence</h1>
+      <h1 className="sr-only">Kernel Lens — A clearer view into Linux kernel development</h1>
       <section className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
         <div className="mx-auto grid max-w-6xl gap-6 px-4 py-12 sm:px-6 lg:grid-cols-[0.65fr_1.35fr] lg:items-center">
           <div>

@@ -40,7 +40,7 @@ export function AiQuotaToast() {
               {status.requestCount}/{status.dailyRequestLimit} Gemini summary requests used today.
               {exhausted
                 ? ` New summaries resume after ${new Date(status.resetAt).toLocaleString()}.`
-                : ` ${status.remainingRequests} requests remain in LKMLens's daily free-tier budget.`}
+                : ` ${status.remainingRequests} requests remain in Kernel Lens's daily free-tier budget.`}
             </p>
           </div>
           <button

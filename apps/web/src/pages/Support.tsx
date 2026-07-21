@@ -8,9 +8,9 @@ const tiers = [
 
 export default function Support() {
   return (
-    <Prose title="Support LKMLens">
+    <Prose title="Support Kernel Lens">
       <p>
-        LKMLens is a free and open-source service. Sponsorships help cover
+        Kernel Lens is a free and open-source service. Sponsorships help cover
         indexing, AI inference, storage, email delivery, and future domain
         costs. Sponsorship never influences indexing, ranking, or editorial
         treatment, and tier benefits never gate core search, thread reading,

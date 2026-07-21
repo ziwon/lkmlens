@@ -5,7 +5,7 @@ export function Footer() {
     <footer className="border-t border-slate-200 dark:border-slate-800">
       <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-slate-500 sm:px-6 dark:text-slate-400">
         <p className="max-w-2xl">
-          LKMLens is an independent project and is not affiliated with
+          Kernel Lens is an independent project and is not affiliated with
           kernel.org, the Linux Foundation, or the Linux kernel project.
           Every indexed message links back to its canonical{" "}
           <a

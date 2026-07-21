@@ -3,9 +3,9 @@ import { Prose } from "../components/Prose.tsx";
 
 export default function About() {
   return (
-    <Prose title="About LKMLens">
+    <Prose title="About Kernel Lens">
       <p>
-        LKMLens is an open-source kernel ecosystem observatory for teams that
+        Kernel Lens is an open-source kernel ecosystem observatory for teams that
         build hardware products. It collects selected public conversations from{" "}
         <a
           className="underline decoration-slate-400 underline-offset-2"
@@ -20,15 +20,15 @@ export default function About() {
       </p>
 
       <p>
-        LKMLens is not intended to replace lore.kernel.org. Lore remains the
-        canonical source and archive. LKMLens adds a discovery and
+        Kernel Lens is not intended to replace lore.kernel.org. Lore remains the
+        canonical source and archive. Kernel Lens adds a discovery and
         interpretation layer on top of it. The primary question is not simply
         “what was posted?” but “what does this change mean for my hardware,
         BSP, release plan, and integration work?”
       </p>
 
       <p className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
-        LKMLens is an independent project and is not affiliated with
+        Kernel Lens is an independent project and is not affiliated with
         kernel.org, the Linux Foundation, or the Linux kernel project.
       </p>
 
@@ -46,7 +46,7 @@ export default function About() {
         Status
       </h2>
       <p>
-        LKMLens is in early development. Topic and vendor lenses, deterministic
+        Kernel Lens is in early development. Topic and vendor lenses, deterministic
         product-impact mapping, patch-revision navigation, explicit review
         evidence, integration-path records, search, and bounded evidence-linked
         summaries are implemented. See{" "}

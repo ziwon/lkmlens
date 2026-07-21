@@ -103,7 +103,7 @@ export default function Thread() {
         </div>
         <LifecycleRail lifecycle={lifecycle} reviewSignals={reviewSignals} submittedAt={thread.firstPostedAt} />
         <p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-500">
-          “Not observed” means LKMLens has not found public mainline or stable evidence. It does not imply rejection or absence from a private BSP.
+          “Not observed” means Kernel Lens has not found public mainline or stable evidence. It does not imply rejection or absence from a private BSP.
           {lifecycle?.checkedAt && ` Last checked ${lifecycle.checkedAt}.`}
         </p>
       </section>
