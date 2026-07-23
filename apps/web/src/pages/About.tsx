@@ -15,7 +15,7 @@ export default function About() {
         >
           lore.kernel.org
         </a>
-        , reconstructs patch series, and curates the resulting signals by
+        , reconstructs patch series, and curates them by
         vendor, subsystem, product surface, and integration stage.
       </p>
 
@@ -38,7 +38,7 @@ export default function About() {
       <p>
         BSP and platform engineers, firmware and systems teams, robotics and
         automotive developers, product planners, kernel engineers, and anyone
-        who needs reliable upstream signals without following every mailing
+        who needs reliable upstream visibility without following every mailing
         list. No account is required.
       </p>
 
