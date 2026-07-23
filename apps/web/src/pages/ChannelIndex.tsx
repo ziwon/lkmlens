@@ -50,7 +50,7 @@ export default function ChannelIndex({ kind }: { kind: CurationChannel["kind"] }
                 <span className="flex items-baseline justify-between gap-4">
                   <span className="text-base font-semibold text-slate-900 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">{channel.name}</span>
                   <span className="shrink-0 font-mono text-xs text-slate-500 dark:text-slate-400">
-                    {channel.signalCount} {channel.signalCount === 1 ? "signal" : "signals"}
+                    {channel.patchCount} {channel.patchCount === 1 ? "patch" : "patches"}
                   </span>
                 </span>
                 {channel.description && <span className="mt-1 block text-sm leading-6 text-slate-500 dark:text-slate-400">{channel.description}</span>}

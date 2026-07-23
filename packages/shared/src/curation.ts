@@ -13,11 +13,11 @@ export interface CurationChannel {
   slug: string;
   name: string;
   description: string | null;
-  signalCount: number;
+  patchCount: number;
   trackedAreas: string[];
 }
 
-export interface CurationSignal {
+export interface CurationPatch {
   threadId: number;
   subject: string;
   authorName: string | null;

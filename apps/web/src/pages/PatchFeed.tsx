@@ -1,16 +1,16 @@
 import { Link, useParams } from "react-router";
-import { SignalRow } from "../components/SignalRow.tsx";
+import { PatchRow } from "../components/PatchRow.tsx";
 import { fetchCurationFeed } from "../lib/api.ts";
 import { useAsync } from "../lib/useAsync.ts";
 
-export default function SignalFeed({ kind }: { kind: "topic" | "vendor" }) {
+export default function PatchFeed({ kind }: { kind: "topic" | "vendor" }) {
   const { slug = "" } = useParams();
   const result = useAsync(() => fetchCurationFeed(kind, slug), [kind, slug]);
 
-  if (result.status === "loading") return <p className="mx-auto max-w-6xl px-4 py-12 text-sm text-slate-500">Loading signals…</p>;
+  if (result.status === "loading") return <p className="mx-auto max-w-6xl px-4 py-12 text-sm text-slate-500">Loading patches…</p>;
   if (result.status === "error") return <p className="mx-auto max-w-6xl px-4 py-12 text-sm text-red-600">{result.error.message === "not-found" ? "Channel not found." : `Could not load channel (${result.error.message}).`}</p>;
 
-  const { channel, signals } = result.data;
+  const { channel, patches } = result.data;
   const indexPath = kind === "vendor" ? "/vendors" : "/topics";
   const indexLabel = kind === "vendor" ? "All vendors" : "All topics";
   return (
@@ -23,7 +23,7 @@ export default function SignalFeed({ kind }: { kind: "topic" | "vendor" }) {
           {channel.description && <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-400">{channel.description}</p>}
         </div>
         <dl className="grid grid-cols-2 gap-4 border-l-0 border-slate-200 lg:border-l lg:pl-8 dark:border-slate-800">
-          <div><dt className="text-xs text-slate-500">Observed signals</dt><dd className="mt-1 font-mono text-2xl text-slate-950 dark:text-white">{channel.signalCount}</dd></div>
+          <div><dt className="text-xs text-slate-500">Observed patches</dt><dd className="mt-1 font-mono text-2xl text-slate-950 dark:text-white">{channel.patchCount}</dd></div>
           <div><dt className="text-xs text-slate-500">Feed order</dt><dd className="mt-1 text-sm font-medium text-slate-800 dark:text-slate-200">Evidence first</dd></div>
         </dl>
       </header>
@@ -34,10 +34,10 @@ export default function SignalFeed({ kind }: { kind: "topic" | "vendor" }) {
         </div>
       )}
 
-      <section aria-label={`${channel.name} signals`}>
-        {signals.length === 0 ? (
-          <div className="py-16 text-center"><p className="text-slate-700 dark:text-slate-300">No matched public signals yet.</p><p className="mt-2 text-sm text-slate-500">The channel is configured; evidence will appear after impact indexing runs.</p></div>
-        ) : signals.map((signal) => <SignalRow key={signal.threadId} signal={signal} />)}
+      <section aria-label={`${channel.name} patches`}>
+        {patches.length === 0 ? (
+          <div className="py-16 text-center"><p className="text-slate-700 dark:text-slate-300">No matched public patches yet.</p><p className="mt-2 text-sm text-slate-500">The channel is configured; evidence will appear after impact indexing runs.</p></div>
+        ) : patches.map((patch) => <PatchRow key={patch.threadId} patch={patch} />)}
       </section>
     </div>
   );

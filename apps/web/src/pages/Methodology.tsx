@@ -42,7 +42,7 @@ export default function Methodology() {
       </p>
 
       <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-        How vendor and product signals are curated
+        How vendor and product patches are curated
       </h2>
       <p>
         Vendor lenses use public, reviewable watchlist rules that match changed

@@ -12,7 +12,7 @@ import NotFound from "./pages/NotFound.tsx";
 import Digests from "./pages/Digests.tsx";
 import Digest from "./pages/Digest.tsx";
 import ChannelIndex from "./pages/ChannelIndex.tsx";
-import SignalFeed from "./pages/SignalFeed.tsx";
+import PatchFeed from "./pages/PatchFeed.tsx";
 
 export default function App() {
   return (
@@ -20,11 +20,11 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="search" element={<Search />} />
-        <Route path="signals" element={<Navigate to="/" replace />} />
+        <Route path="patches" element={<Navigate to="/" replace />} />
         <Route path="topics" element={<ChannelIndex kind="topic" />} />
         <Route path="vendors" element={<ChannelIndex kind="vendor" />} />
-        <Route path="topics/:slug" element={<SignalFeed kind="topic" />} />
-        <Route path="vendors/:slug" element={<SignalFeed kind="vendor" />} />
+        <Route path="topics/:slug" element={<PatchFeed kind="topic" />} />
+        <Route path="vendors/:slug" element={<PatchFeed kind="vendor" />} />
         <Route path="threads/:id" element={<Thread />} />
         <Route path="digests" element={<Digests />} />
         <Route path="digests/:period/:key" element={<Digest />} />

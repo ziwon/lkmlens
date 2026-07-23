@@ -1,5 +1,5 @@
 import type { SearchResultRow, ThreadDetail } from "@lkmlens/db";
-import type { AiUsageStatus, CurationChannel, CurationSignal, Digest, DigestPeriod, Topic } from "@lkmlens/shared";
+import type { AiUsageStatus, CurationChannel, CurationPatch, Digest, DigestPeriod, Topic } from "@lkmlens/shared";
 
 export async function fetchTopics(): Promise<Topic[]> {
   const res = await fetch("/api/topics");
@@ -52,9 +52,9 @@ export async function fetchCurationChannels(): Promise<CurationChannel[]> {
 export async function fetchCurationFeed(
   kind: "topic" | "vendor",
   slug: string,
-): Promise<{ channel: CurationChannel; signals: CurationSignal[] }> {
+): Promise<{ channel: CurationChannel; patches: CurationPatch[] }> {
   const res = await fetch(`/api/curation/${kind}/${encodeURIComponent(slug)}`);
   if (res.status === 404) throw new Error("not-found");
   if (!res.ok) throw new Error(`GET curation feed failed: ${res.status}`);
-  return (await res.json()) as { channel: CurationChannel; signals: CurationSignal[] };
+  return (await res.json()) as { channel: CurationChannel; patches: CurationPatch[] };
 }

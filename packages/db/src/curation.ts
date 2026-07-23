@@ -2,7 +2,7 @@ import type { D1Database } from "@cloudflare/workers-types";
 import {
   deriveLifecycleStage,
   type CurationChannel,
-  type CurationSignal,
+  type CurationPatch,
   type PatchLifecycle,
 } from "@lkmlens/shared";
 
@@ -10,16 +10,16 @@ interface ChannelRow {
   slug: string;
   name: string;
   description: string | null;
-  signal_count: number;
+  patch_count: number;
 }
 
 interface VendorChannelRow {
   vendor: string;
   layers_json: string;
-  signal_count: number;
+  patch_count: number;
 }
 
-interface SignalRow {
+interface PatchRow {
   thread_id: number;
   subject: string;
   author_name: string | null;
@@ -54,14 +54,14 @@ export function slugifyVendor(vendor: string): string {
 export async function listCurationChannels(db: D1Database): Promise<CurationChannel[]> {
   const [topicResult, vendorResult] = await Promise.all([
     db.prepare(
-      `SELECT tp.slug, tp.name, tp.description, COUNT(DISTINCT tt.thread_id) AS signal_count
+      `SELECT tp.slug, tp.name, tp.description, COUNT(DISTINCT tt.thread_id) AS patch_count
        FROM topics tp LEFT JOIN thread_topics tt ON tt.topic_id = tp.id
        WHERE tp.enabled = 1
        GROUP BY tp.id ORDER BY tp.display_order ASC, tp.name ASC`,
     ).all<ChannelRow>(),
     db.prepare(
       `SELECT rules.vendor, json_group_array(DISTINCT rules.layer) AS layers_json,
-              COUNT(DISTINCT ti.thread_id) AS signal_count
+              COUNT(DISTINCT ti.thread_id) AS patch_count
        FROM (SELECT DISTINCT vendor, layer FROM impact_rules
              WHERE enabled = 1 AND vendor IS NOT NULL) rules
        LEFT JOIN thread_impact ti
@@ -76,7 +76,7 @@ export async function listCurationChannels(db: D1Database): Promise<CurationChan
       slug: slugifyVendor(row.vendor),
       name: row.vendor,
       description: `Public kernel changes matched to ${row.vendor} hardware and platform integration areas.`,
-      signalCount: row.signal_count,
+      patchCount: row.patch_count,
       trackedAreas: JSON.parse(row.layers_json) as string[],
     };
   });
@@ -87,14 +87,14 @@ export async function listCurationChannels(db: D1Database): Promise<CurationChan
       slug: row.slug,
       name: row.name,
       description: row.description,
-      signalCount: row.signal_count,
+      patchCount: row.patch_count,
       trackedAreas: [],
     })),
     ...vendorChannels,
   ];
 }
 
-const signalSelect = `
+const patchSelect = `
   SELECT t.id AS thread_id, t.display_subject AS subject, t.author_name, t.source_url,
          t.first_posted_at, t.last_activity_at, t.patch_version,
          COALESCE((SELECT json_group_array(tp.name) FROM thread_topics tt2
@@ -113,7 +113,7 @@ const signalSelect = `
   LEFT JOIN patch_revisions pr ON pr.thread_id = t.id
   LEFT JOIN patch_lifecycle pl ON pl.series_id = pr.series_id`;
 
-function rowToSignal(row: SignalRow): CurationSignal {
+function rowToPatch(row: PatchRow): CurationPatch {
   const lifecycle: PatchLifecycle | null = row.series_id === null || row.lifecycle_updated_at === null ? null : {
     seriesId: row.series_id,
     maintainerTree: row.maintainer_tree,
@@ -151,9 +151,9 @@ function rowToSignal(row: SignalRow): CurationSignal {
   };
 }
 
-export async function listTopicSignals(db: D1Database, slug: string, limit = 30): Promise<CurationSignal[]> {
+export async function listTopicPatches(db: D1Database, slug: string, limit = 30): Promise<CurationPatch[]> {
   const { results } = await db.prepare(
-    `${signalSelect}
+    `${patchSelect}
      JOIN thread_topics selected ON selected.thread_id = t.id
      JOIN topics selected_topic ON selected_topic.id = selected.topic_id
      WHERE selected_topic.slug = ?
@@ -165,16 +165,16 @@ export async function listTopicSignals(db: D1Database, slug: string, limit = 30)
        WHEN EXISTS (SELECT 1 FROM review_signals rs WHERE rs.thread_id = t.id AND rs.signal_type IN ('Reviewed-by','Acked-by')) THEN 2
        ELSE 1 END DESC,
        t.last_activity_at DESC LIMIT ?`,
-  ).bind(slug, limit).all<SignalRow>();
-  return results.map(rowToSignal);
+  ).bind(slug, limit).all<PatchRow>();
+  return results.map(rowToPatch);
 }
 
-export async function listVendorSignals(db: D1Database, slug: string, limit = 30): Promise<{ name: string; signals: CurationSignal[] } | null> {
+export async function listVendorPatches(db: D1Database, slug: string, limit = 30): Promise<{ name: string; patches: CurationPatch[] } | null> {
   const channels = (await listCurationChannels(db)).filter((channel) => channel.kind === "vendor");
   const channel = channels.find((item) => item.slug === slug);
   if (!channel) return null;
   const { results } = await db.prepare(
-    `${signalSelect}
+    `${patchSelect}
      WHERE EXISTS (SELECT 1 FROM json_each(COALESCE(ti.vendors_json, '[]')) WHERE value = ?)
      ORDER BY CASE
        WHEN json_array_length(COALESCE(pl.android_common_branches_json, '[]')) > 0 THEN 7
@@ -184,6 +184,6 @@ export async function listVendorSignals(db: D1Database, slug: string, limit = 30
        WHEN EXISTS (SELECT 1 FROM review_signals rs WHERE rs.thread_id = t.id AND rs.signal_type IN ('Reviewed-by','Acked-by')) THEN 2
        ELSE 1 END DESC,
        t.last_activity_at DESC LIMIT ?`,
-  ).bind(channel.name, limit).all<SignalRow>();
-  return { name: channel.name, signals: results.map(rowToSignal) };
+  ).bind(channel.name, limit).all<PatchRow>();
+  return { name: channel.name, patches: results.map(rowToPatch) };
 }
