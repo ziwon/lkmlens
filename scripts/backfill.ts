@@ -216,6 +216,14 @@ interface CheckpointRow {
   cursor: string | null;
 }
 
+// D1 rejects any single SQL statement over 100 KB with
+// "statement too long: SQLITE_TOOBIG [code: 7500]". A large incremental batch
+// (e.g. a high-volume list whose checkpoint fell days behind) can reference
+// several thousand message-ids, so the known-roots lookup is chunked to keep
+// each IN (...) statement well under that limit rather than sending one giant
+// query. ~50 bytes/id means 400 ids is ~22 KB — comfortably safe.
+const KNOWN_ROOTS_ID_CHUNK = 400;
+
 function fetchKnownRoots(target: D1Target, messages: ParsedMessage[]): Map<string, string> {
   const ids = new Set<string>();
   for (const message of messages) {
@@ -225,13 +233,19 @@ function fetchKnownRoots(target: D1Target, messages: ParsedMessage[]): Map<strin
   }
   if (ids.size === 0) return new Map();
 
-  const rows = queryD1<{ message_id: string; root_message_id: string }>(
-    `SELECT m.message_id, t.root_message_id
-     FROM messages m JOIN threads t ON t.id = m.thread_id
-     WHERE m.message_id IN (${Array.from(ids, sqlString).join(",")})`,
-    target,
-  );
-  return new Map(rows.map((row) => [row.message_id, row.root_message_id]));
+  const known = new Map<string, string>();
+  const allIds = Array.from(ids);
+  for (let start = 0; start < allIds.length; start += KNOWN_ROOTS_ID_CHUNK) {
+    const chunk = allIds.slice(start, start + KNOWN_ROOTS_ID_CHUNK);
+    const rows = queryD1<{ message_id: string; root_message_id: string }>(
+      `SELECT m.message_id, t.root_message_id
+       FROM messages m JOIN threads t ON t.id = m.thread_id
+       WHERE m.message_id IN (${chunk.map(sqlString).join(",")})`,
+      target,
+    );
+    for (const row of rows) known.set(row.message_id, row.root_message_id);
+  }
+  return known;
 }
 
 function inferChangeNotes(target: D1Target, thread: ThreadDraft, root: ParsedMessage): string | null {
