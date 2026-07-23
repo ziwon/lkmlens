@@ -1,0 +1,70 @@
+name: Collect
+
+on:
+  schedule:
+    # 00:30 UTC daily — ahead of the digest Worker cron (7 1 * * *, i.e. 01:07
+    # UTC) so the day's threads are ingested before the daily digest is composed.
+    # Bump to a shorter interval (min 5 min) here if you want fresher data.
+    - cron: "30 0 * * *"
+  workflow_dispatch:
+
+concurrency:
+  # Never let two collection runs overlap: they share collection_checkpoints in
+  # D1, so a queued run must wait for the in-flight one rather than cancel it.
+  group: collect
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  collect:
+    name: Ingest lore.kernel.org sources
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Restore lore.kernel.org git mirrors
+        # Mutable cache: restore the newest prior snapshot via the prefix in
+        # restore-keys (the run-unique primary key never hits, forcing a fresh
+        # save below). A miss just means syncMirror re-clones shallow (~30 days);
+        # incremental correctness comes from D1 collection_checkpoints, not disk.
+        uses: actions/cache/restore@v4
+        with:
+          path: .data/mirrors
+          key: lore-mirrors-${{ github.run_id }}
+          restore-keys: |
+            lore-mirrors-
+
+      - name: Collect and compute impact
+        # backfill --remote for every configured source, then compute-impact
+        # --remote. wrangler reads CLOUDFLARE_* from env; d1.ts passes --yes so
+        # the remote-execute confirmation never blocks on stdin.
+        run: pnpm exec tsx scripts/collect-all.ts
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      - name: Save lore.kernel.org git mirrors
+        # Always save, even if a source failed: collect-all exits non-zero when
+        # any single source fails, but the mirrors that did fetch are still valid
+        # and worth carrying to the next run.
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: .data/mirrors
+          key: lore-mirrors-${{ github.run_id }}
