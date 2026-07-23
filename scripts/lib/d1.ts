@@ -28,7 +28,10 @@ export function execD1File(sql: string, target: D1Target, label: string): void {
   writeFileSync(file, sql, "utf8");
 
   console.log(`${label} (${target.slice(2)}) via ${file} ...`);
-  const result = spawnSync("wrangler", ["d1", "execute", DB_NAME, target, "--file", file], {
+  // --yes skips wrangler's "About to execute ... on remote database. Ok to
+  // proceed? (Y/n)" confirmation so unattended runs (systemd timer, `just
+  // sync`) don't hang waiting on stdin. Harmless for --local (no prompt).
+  const result = spawnSync("wrangler", ["d1", "execute", DB_NAME, target, "--yes", "--file", file], {
     stdio: "inherit",
   });
   if (result.status !== 0) {
