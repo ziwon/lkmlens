@@ -39,6 +39,18 @@ const SOURCES: Source[] = [
   { inbox: "linux-cxl", epoch: 0 },
   { inbox: "linux-mm", epoch: 2 },
   { inbox: "cgroups", epoch: 0 },
+  // Added to cover mailing_list rules in scripts/seed-topics.ts and
+  // vendor/subsystem file-path rules in config/{vendors,subsystems}/*.yaml
+  // that previously had no matching collector source.
+  { inbox: "netdev", epoch: 3 },
+  { inbox: "amd-gfx", epoch: 0 },
+  { inbox: "linux-rdma", epoch: 0 },
+  { inbox: "linux-pci", epoch: 0 },
+  { inbox: "linux-arm-kernel", epoch: 3 },
+  { inbox: "linux-can", epoch: 0 },
+  { inbox: "linux-iio", epoch: 0 },
+  { inbox: "platform-driver-x86", epoch: 0 },
+  { inbox: "linux-fsdevel", epoch: 1 },
 ];
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
