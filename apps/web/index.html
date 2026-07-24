@@ -8,8 +8,23 @@
       name="description"
       content="Understand what Linux kernel changes mean for your hardware and product through curated vendor, subsystem, review, and integration signals."
     />
-    <meta name="theme-color" content="#0b1220" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f6f2" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0d0b" />
     <link rel="canonical" href="https://kernel-lens.pages.dev/" />
+
+    <!-- Apply the stored theme before first paint so the canvas never flashes
+         light before ThemeToggle mounts. -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("lkmlens-theme");
+          var dark = stored
+            ? stored === "dark"
+            : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          document.documentElement.classList.toggle("dark", dark);
+        } catch (_) {}
+      })();
+    </script>
 
     <!-- Open Graph / Social -->
     <meta property="og:type" content="website" />

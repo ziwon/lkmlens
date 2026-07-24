@@ -20,14 +20,14 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
-      className="focus-ring rounded-md p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+      className="focus-ring inline-flex size-11 items-center justify-center text-ink-secondary transition-colors hover:text-ink"
       aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
       title={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
     >
       {theme === "dark" ? (
         <svg viewBox="0 0 24 24" fill="none" className="size-5" aria-hidden="true">
-          <circle cx="12" cy="12" r="4.5" stroke="currentColor" strokeWidth="1.75" />
-          <g stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+          <circle cx="12" cy="12" r="4.5" stroke="currentColor" strokeWidth="1.5" />
+          <g stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
             <line x1="12" y1="2.5" x2="12" y2="4.5" />
             <line x1="12" y1="19.5" x2="12" y2="21.5" />
             <line x1="2.5" y1="12" x2="4.5" y2="12" />
@@ -43,7 +43,7 @@ export function ThemeToggle() {
           <path
             d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"
             stroke="currentColor"
-            strokeWidth="1.75"
+            strokeWidth="1.5"
             strokeLinejoin="round"
           />
         </svg>

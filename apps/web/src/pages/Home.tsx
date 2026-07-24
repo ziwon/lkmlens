@@ -1,123 +1,224 @@
 import { Link } from "react-router";
 import { SearchBox } from "../components/SearchBox.tsx";
+import { SectionMarker } from "../components/SectionMarker.tsx";
+import { SectionHeading } from "../components/SectionHeading.tsx";
+import { ChannelGrid } from "../components/ChannelGrid.tsx";
+import { EmptyState, ErrorState, LoadingNote } from "../components/States.tsx";
 import { fetchCurationChannels, fetchDigests } from "../lib/api.ts";
 import { useAsync } from "../lib/useAsync.ts";
+import { formatDate, plural } from "../lib/format.ts";
+import { frame } from "../lib/frame.ts";
 
 export default function Home() {
   const channels = useAsync(fetchCurationChannels, []);
   const digests = useAsync(fetchDigests, []);
-  const visibleTopics = channels.status === "success"
-    ? channels.data.filter((channel) => channel.kind === "topic" && channel.patchCount > 0).slice(0, 8)
+
+  const allTopics = channels.status === "success"
+    ? channels.data.filter((channel) => channel.kind === "topic")
     : [];
-  const visibleVendors = channels.status === "success"
-    ? channels.data.filter((channel) => channel.kind === "vendor").slice(0, 8)
+  const allVendors = channels.status === "success"
+    ? channels.data.filter((channel) => channel.kind === "vendor")
     : [];
+  const visibleTopics = allTopics.filter((channel) => channel.patchCount > 0).slice(0, 8);
+  const visibleVendors = allVendors.slice(0, 8);
+  const observedPatches = allTopics.reduce((total, channel) => total + channel.patchCount, 0);
+
+  // Section markers must stay contiguous: the digests section is omitted until
+  // an edition exists, so numbering is counted at render rather than hardcoded.
+  const hasDigests = digests.status === "success" && digests.data.length > 0;
+  const sectionIndex = (position: number) => String(position).padStart(2, "0");
 
   return (
-    <div>
-      <h1 className="sr-only">Kernel Lens — A clearer view into Linux kernel development</h1>
-      <section className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
-        <div className="mx-auto grid max-w-6xl gap-6 px-4 py-12 sm:px-6 lg:grid-cols-[0.65fr_1.35fr] lg:items-center">
-          <div>
-            <h2 className="text-lg font-semibold text-slate-950 dark:text-white">Search</h2>
-            <p className="mt-1 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-400">
-              Find patches, symbols, authors, or subsystems across indexed public discussions.
+    <>
+      {/* 01 — editorial statement and the primary search console. */}
+      <section className={`${frame} pt-14 pb-12 sm:pt-20 sm:pb-16`}>
+        <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="lg:col-span-5">
+            <SectionMarker index="01" label="Kernel Lens" />
+            <h1 className="mt-4 max-w-[18ch] text-display text-ink">
+              A clearer view into Linux kernel development.
+            </h1>
+          </div>
+          <div className="lg:col-span-7 lg:pt-14">
+            <p className="max-w-[54ch] text-body-lg text-ink-secondary">
+              See how public kernel changes move from proposal to integration — and what
+              they mean for hardware and products. Every claim links back to its source
+              message on lore.kernel.org.
+            </p>
+            <div className="mt-7">
+              <SearchBox />
+            </div>
+            <p className="mt-3 font-mono text-meta text-ink-muted">
+              Try{" "}
+              <Link to="/search?q=dma-buf" className="focus-ring text-accent hover:underline">
+                dma-buf
+              </Link>
+              {" · "}
+              <Link
+                to={`/search?q=${encodeURIComponent("topic:iommu")}`}
+                className="focus-ring text-accent hover:underline"
+              >
+                topic:iommu
+              </Link>
+              {" · "}
+              <Link
+                to={`/search?q=${encodeURIComponent("Reviewed-by")}`}
+                className="focus-ring text-accent hover:underline"
+              >
+                Reviewed-by
+              </Link>
             </p>
           </div>
-          <SearchBox />
         </div>
       </section>
 
-      <section className="bg-white dark:bg-slate-950" aria-labelledby="topics-heading">
-        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-          <SectionHeader
-            id="topics-heading"
-            title="Topics"
-            description="Start with a kernel area, then follow its product impact."
-            to="/topics"
-            linkLabel="All topics"
-          />
-          {channels.status === "loading" && <p className="py-8 text-sm text-slate-500 dark:text-slate-400">Loading topics…</p>}
-          {channels.status === "error" && <p className="py-8 text-sm text-red-600 dark:text-red-400">Could not load topics.</p>}
-          {channels.status === "success" && visibleTopics.length === 0 && <p className="py-8 text-sm text-slate-500 dark:text-slate-400">No observed topic patches yet.</p>}
-          {channels.status === "success" && visibleTopics.length > 0 && (
-            <div className="mt-5 grid overflow-hidden border-t border-l border-slate-200 sm:grid-cols-2 lg:grid-cols-4 dark:border-slate-800">
-              {visibleTopics.map((channel) => (
-                <Link key={`${channel.kind}:${channel.slug}`} to={`/topics/${channel.slug}`} className="focus-ring group border-r border-b border-slate-200 p-5 transition-colors hover:bg-slate-50 sm:min-h-28 dark:border-slate-800 dark:hover:bg-slate-900/50">
-                  <span className="block font-semibold text-slate-900 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">{channel.name}</span>
-                  <span className="mt-3 block font-mono text-xs text-slate-500 dark:text-slate-400">{channel.patchCount} observed patches</span>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      <section className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950" aria-labelledby="vendors-heading">
-        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-          <SectionHeader
-            id="vendors-heading"
-            title="Vendors"
-            description="Follow public kernel changes mapped to hardware platforms."
-            to="/vendors"
-            linkLabel="All vendors"
-          />
-          {channels.status === "loading" && <p className="py-8 text-sm text-slate-500 dark:text-slate-400">Loading vendors…</p>}
-          {channels.status === "error" && <p className="py-8 text-sm text-red-600 dark:text-red-400">Could not load vendors.</p>}
-          {channels.status === "success" && visibleVendors.length === 0 && <p className="py-8 text-sm text-slate-500 dark:text-slate-400">No vendor channels are configured yet.</p>}
-          {channels.status === "success" && visibleVendors.length > 0 && (
-            <div className="mt-5 grid overflow-hidden border-t border-l border-slate-200 sm:grid-cols-2 lg:grid-cols-4 dark:border-slate-800">
-              {visibleVendors.map((channel) => (
-                <Link key={channel.slug} to={`/vendors/${channel.slug}`} className="focus-ring group border-r border-b border-slate-200 p-5 transition-colors hover:bg-slate-50 sm:min-h-28 dark:border-slate-800 dark:hover:bg-slate-900/50">
-                  <span className="block font-semibold text-slate-900 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">{channel.name}</span>
-                  <span className="mt-3 block font-mono text-xs text-slate-500 dark:text-slate-400">{channel.patchCount} observed patches</span>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {digests.status === "success" && digests.data.length > 0 && (
-        <section className="border-t border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/40" aria-labelledby="digests-heading">
-          <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-            <SectionHeader
-              id="digests-heading"
-              title="Digests"
-              description="Daily and weekly reports of selected threads, with links to public evidence."
-              to="/digests"
-              linkLabel="All digests"
+      {/* Coverage strip: observed index scope, stated as counts, not claims. */}
+      {channels.status === "success" && (
+        <section className={frame} aria-label="Index coverage">
+          <dl className="grid border-t border-l border-border sm:grid-cols-2 lg:grid-cols-4">
+            <CoverageCell label="Topics tracked" value={allTopics.length} />
+            <CoverageCell label="Vendor lenses" value={allVendors.length} />
+            <CoverageCell label="Observed patches" value={observedPatches} />
+            <CoverageCell
+              label="Digests published"
+              value={digests.status === "success" ? digests.data.length : "—"}
             />
-            <ul>{digests.data.slice(0, 3).map((digest) => <li key={`${digest.periodType}:${digest.periodKey}`} className="border-b border-slate-200 dark:border-slate-800"><Link to={`/digests/${digest.periodType}/${digest.periodKey}`} className="focus-ring flex items-center justify-between gap-4 rounded-sm py-5"><span className="font-medium text-slate-900 dark:text-white">{digest.title}</span><span className="font-mono text-xs text-slate-500">{digest.content.threads.length} patches →</span></Link></li>)}</ul>
-          </div>
+          </dl>
         </section>
       )}
-    </div>
+
+      {/* 02 — topics. */}
+      <section className={`${frame} pt-16`} aria-labelledby="topics-heading">
+        <SectionHeading
+          id="topics-heading"
+          index="02"
+          marker="Topics"
+          title="Kernel areas under observation"
+          description="Start with a subsystem or cross-cutting area, then follow its product impact."
+          action={{ to: "/topics", label: "View all" }}
+        />
+        <div className="mt-6">
+          {channels.status === "loading" && <LoadingNote>Loading indexed topics…</LoadingNote>}
+          {channels.status === "error" && (
+            <ErrorState title="Could not load topics." detail={channels.error.message} />
+          )}
+          {channels.status === "success" && visibleTopics.length === 0 && (
+            <EmptyState title="No topic has observed patches yet.">
+              Topic channels are configured, but impact indexing has not matched any public
+              patch to them so far.
+            </EmptyState>
+          )}
+          {visibleTopics.length > 0 && <ChannelGrid channels={visibleTopics} />}
+        </div>
+      </section>
+
+      {/* 03 — vendors. */}
+      <section className={`${frame} pt-16`} aria-labelledby="vendors-heading">
+        <SectionHeading
+          id="vendors-heading"
+          index="03"
+          marker="Vendors"
+          title="Public changes mapped to hardware"
+          description="Explainable watchlist rules connect changed paths and subsystems to platforms."
+          action={{ to: "/vendors", label: "View all" }}
+        />
+        <div className="mt-6">
+          {channels.status === "loading" && <LoadingNote>Loading vendor lenses…</LoadingNote>}
+          {channels.status === "error" && (
+            <ErrorState title="Could not load vendors." detail={channels.error.message} />
+          )}
+          {channels.status === "success" && visibleVendors.length === 0 && (
+            <EmptyState title="No vendor channels are configured yet." />
+          )}
+          {visibleVendors.length > 0 && <ChannelGrid channels={visibleVendors} />}
+        </div>
+      </section>
+
+      {/* 04 — recent digests, when an edition exists. */}
+      {hasDigests && digests.status === "success" && (
+        <section className={`${frame} pt-16`} aria-labelledby="digests-heading">
+          <SectionHeading
+            id="digests-heading"
+            index={sectionIndex(4)}
+            marker="Digests"
+            title="Recent editions"
+            description="Daily and weekly reports of selected threads, each linked to public evidence."
+            action={{ to: "/digests", label: "View all" }}
+          />
+          <ul className="mt-2">
+            {digests.data.slice(0, 3).map((digest) => (
+              <li key={`${digest.periodType}:${digest.periodKey}`}>
+                <Link
+                  to={`/digests/${digest.periodType}/${digest.periodKey}`}
+                  className="focus-ring group flex flex-col gap-1 border-b border-border py-5 transition-colors hover:bg-surface-subtle sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
+                >
+                  <span className="min-w-0">
+                    <span className="block font-medium text-ink transition-colors group-hover:text-accent">
+                      {digest.title}
+                    </span>
+                    <span className="mt-1 block font-mono text-meta text-ink-muted">
+                      {digest.periodType} · published {formatDate(digest.publishedAt)}
+                    </span>
+                  </span>
+                  <span className="shrink-0 font-mono text-meta text-ink-muted">
+                    {plural(digest.content.threads.length, "patch", "patches")}{" "}
+                    <span aria-hidden="true" className="group-hover:text-accent">
+                      →
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* 05 — how to read what is shown here. */}
+      <section className={`${frame} pt-16`} aria-labelledby="methodology-heading">
+        <SectionHeading
+          id="methodology-heading"
+          index={sectionIndex(hasDigests ? 5 : 4)}
+          marker="Methodology"
+          title="How to read the evidence"
+          description="Kernel Lens reports what is publicly observable and says so when it is not."
+          action={{ to: "/about/methodology", label: "Read methodology" }}
+        />
+        <dl className="grid border-t border-l border-border md:grid-cols-3">
+          {[
+            {
+              term: "Observed",
+              detail:
+                "A public source was found: a review trailer, a maintainer tree, a mainline commit, or a release.",
+            },
+            {
+              term: "Not observed",
+              detail:
+                "No public evidence was found. It does not mean rejection, nor absence from a private vendor tree.",
+            },
+            {
+              term: "Interpretation",
+              detail:
+                "AI summaries are labelled and cite the messages they draw from. They never predict a merge.",
+            },
+          ].map((item) => (
+            <div key={item.term} className="border-r border-b border-border p-5">
+              <dt className="font-mono text-meta tracking-[0.06em] text-ink-secondary uppercase">
+                {item.term}
+              </dt>
+              <dd className="mt-2 text-small text-ink-muted">{item.detail}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    </>
   );
 }
 
-function SectionHeader({
-  id,
-  title,
-  description,
-  to,
-  linkLabel,
-}: {
-  id: string;
-  title: string;
-  description: string;
-  to: string;
-  linkLabel: string;
-}) {
+function CoverageCell({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="flex flex-col items-start gap-3 border-b border-slate-300 pb-4 sm:flex-row sm:items-end sm:justify-between dark:border-slate-700">
-      <div>
-        <h2 id={id} className="text-xl font-semibold text-slate-950 dark:text-white">{title}</h2>
-        <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">{description}</p>
-      </div>
-      <Link to={to} className="focus-ring inline-flex min-h-11 shrink-0 items-center rounded-sm text-sm font-medium text-emerald-700 hover:underline dark:text-emerald-400">
-        {linkLabel} →
-      </Link>
+    <div className="border-r border-b border-border px-5 py-4">
+      <dt className="font-mono text-meta tracking-[0.06em] text-ink-muted uppercase">{label}</dt>
+      <dd className="mt-1.5 font-mono text-h3 tabular text-ink">{value}</dd>
     </div>
   );
 }

@@ -1,54 +1,69 @@
 import { Prose } from "../components/Prose.tsx";
 
-const tiers = [
-  { amount: "$3/month", label: "Keep the index running" },
-  { amount: "$10/month", label: "Support AI summaries" },
-  { amount: "$25/month", label: "Infrastructure sponsor" },
+const costs = [
+  { item: "Indexing and D1 storage", detail: "Collection runs, thread reconstruction, search index" },
+  { item: "AI inference", detail: "Bounded daily budget for evidence-linked summaries" },
+  { item: "Hosting and delivery", detail: "Cloudflare Pages, Workers, feed delivery" },
 ];
 
 export default function Support() {
   return (
-    <Prose title="Support Kernel Lens">
+    <Prose
+      title="Support Kernel Lens"
+      marker="Support"
+      lead="Kernel Lens is free and open source. Sponsorship covers running costs — it never influences indexing, ranking, or editorial treatment."
+      updated="2026-07-24"
+    >
       <p>
-        Kernel Lens is a free and open-source service. Sponsorships help cover
-        indexing, AI inference, storage, email delivery, and future domain
-        costs. Sponsorship never influences indexing, ranking, or editorial
-        treatment, and tier benefits never gate core search, thread reading,
-        or source links.
+        Core search, thread reading, evidence links, and source access are not gated and will
+        not become gated. Sponsorship exists so the public index can keep running, not to
+        unlock features.
       </p>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {tiers.map((tier) => (
-          <div
-            key={tier.amount}
-            className="rounded-lg border border-slate-200 p-4 text-center dark:border-slate-800"
-          >
-            <div className="font-semibold text-slate-900 dark:text-white">{tier.amount}</div>
-            <div className="mt-1 text-sm text-slate-500 dark:text-slate-400">{tier.label}</div>
+      <h2>What support pays for</h2>
+      <dl className="grid border-t border-l border-border sm:grid-cols-3">
+        {costs.map((cost) => (
+          <div key={cost.item} className="border-r border-b border-border p-4">
+            <dt className="font-mono text-meta tracking-[0.06em] text-ink-secondary uppercase">
+              {cost.item}
+            </dt>
+            <dd className="mt-2 text-small text-ink-muted">{cost.detail}</dd>
           </div>
         ))}
-      </div>
+      </dl>
+      <p>
+        Kernel Lens currently runs on free and low-tier infrastructure. A monthly cost
+        snapshot will be published here once the figures are stable enough to be worth
+        quoting.
+      </p>
 
-      <a
-        href="https://github.com/sponsors/ziwon"
-        target="_blank"
-        rel="noreferrer"
-        className="focus-ring inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 font-medium text-white transition hover:bg-emerald-500"
-      >
-        Sponsor on GitHub
-      </a>
+      <p>
+        <a
+          href="https://github.com/sponsors/ziwon"
+          target="_blank"
+          rel="noreferrer"
+          className="focus-ring inline-flex min-h-11 items-center rounded-md bg-accent px-4 font-medium text-canvas no-underline transition-colors hover:bg-accent-hover"
+        >
+          Sponsor on GitHub ↗
+        </a>
+      </p>
 
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-        Funding priorities
-      </h2>
-      <ol className="list-decimal space-y-1 pl-5">
+      <h2>Funding priorities</h2>
+      <ol>
         <li>Keep the public search service online</li>
-        <li>Cover AI inference</li>
+        <li>Cover AI inference within a bounded budget</li>
         <li>Increase indexing depth and retention</li>
         <li>Add email and feed delivery</li>
         <li>Purchase a dedicated domain</li>
         <li>Fund contributor work</li>
       </ol>
+
+      <h2>Independence</h2>
+      <p>
+        Sponsors receive no influence over which patches, topics, or vendors are indexed, how
+        they are ranked, or how evidence is presented. Vendor lenses are driven by public,
+        reviewable rules, and every sponsorship arrangement stays outside that pipeline.
+      </p>
     </Prose>
   );
 }

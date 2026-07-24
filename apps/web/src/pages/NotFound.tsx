@@ -1,18 +1,36 @@
 import { Link } from "react-router";
+import { SectionMarker } from "../components/SectionMarker.tsx";
+import { frameRead } from "../lib/frame.ts";
 
 export default function NotFound() {
   return (
-    <div className="mx-auto max-w-md px-4 py-24 text-center sm:px-6">
-      <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Page not found</h1>
-      <p className="mt-2 text-slate-500 dark:text-slate-400">
-        That page doesn't exist.
+    <div className={`${frameRead} py-20 sm:py-28`}>
+      <SectionMarker label="404" />
+      <h1 className="mt-3 text-h1 text-ink">Page not found</h1>
+      <p className="mt-4 max-w-[56ch] text-body-lg text-ink-secondary">
+        That route does not exist. Threads, topics, and vendors are reachable from search or
+        from the channel indexes.
       </p>
-      <Link
-        to="/"
-        className="focus-ring mt-6 inline-block rounded-md px-3 py-2 font-medium text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-500/10"
-      >
-        Back to search
-      </Link>
+      <ul className="mt-8 border-t border-border">
+        {[
+          { to: "/search", label: "Search indexed discussions" },
+          { to: "/topics", label: "Topics" },
+          { to: "/vendors", label: "Vendors" },
+          { to: "/digests", label: "Digests" },
+        ].map((item) => (
+          <li key={item.to} className="border-b border-border">
+            <Link
+              to={item.to}
+              className="focus-ring group flex min-h-14 items-center justify-between gap-4 transition-colors hover:bg-surface-subtle"
+            >
+              <span className="text-body text-ink group-hover:text-accent">{item.label}</span>
+              <span aria-hidden="true" className="text-ink-faint group-hover:text-accent">
+                →
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

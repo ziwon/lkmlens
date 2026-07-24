@@ -1,11 +1,16 @@
 import { buildLifecycleSteps, type PatchLifecycle, type ReviewSignal } from "@lkmlens/shared";
+import { SourceLink } from "./SourceLink.tsx";
+import { formatDate } from "../lib/format.ts";
+
+/**
+ * The fixed lifecycle sequence (DESIGN.md 9.5). Every state carries a label and
+ * a mark; unobserved stages say "Not observed" rather than implying rejection,
+ * and the furthest observed stage is bracketed as the current position.
+ */
 
 function formatDetail(key: string, detail: string | null): string {
   if (!detail) return "Not observed";
-  if (key === "submitted") {
-    const date = new Date(detail);
-    if (!Number.isNaN(date.valueOf())) return new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(date);
-  }
+  if (key === "submitted") return formatDate(detail, detail);
   return detail;
 }
 
@@ -18,31 +23,59 @@ export function LifecycleRail({
   reviewSignals: Pick<ReviewSignal, "signalType" | "personName" | "sourceUrl">[];
   submittedAt: string | null;
 }) {
-  const steps = buildLifecycleSteps(lifecycle, reviewSignals, submittedAt).filter(
-    (step) => step.key === "mainline" || step.key === "stable-backport",
+  const steps = buildLifecycleSteps(lifecycle, reviewSignals, submittedAt);
+  const currentIndex = steps.reduce(
+    (latest, step, index) => (step.observed ? index : latest),
+    -1,
   );
 
   return (
-    <ol className="grid gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200 dark:border-slate-800 dark:bg-slate-800 sm:grid-cols-2">
-      {steps.map((step) => (
-        <li key={step.key} className="min-w-0 bg-white px-4 py-4 dark:bg-slate-950">
-          <div className="flex items-center gap-1.5">
-            <span className={`size-2 shrink-0 rounded-full ${step.observed ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-700"}`} />
-            <span className="truncate text-sm font-medium text-slate-700 dark:text-slate-300">
-              {step.label}
+    <ol className="border-t border-border">
+      {steps.map((step, index) => {
+        const isCurrent = index === currentIndex;
+        return (
+          <li
+            key={step.key}
+            className={`flex items-baseline gap-3 border-b border-border py-3 pl-3 ${
+              isCurrent ? "border-l-2 border-l-accent bg-accent-soft/40" : "border-l-2 border-l-transparent"
+            }`}
+          >
+            <span
+              aria-hidden="true"
+              className={`w-3 shrink-0 text-center font-mono text-meta ${
+                step.observed ? "text-accent" : "text-ink-faint"
+              }`}
+            >
+              {step.observed ? "●" : "○"}
             </span>
-          </div>
-          {step.sourceUrl ? (
-            <a href={step.sourceUrl} target="_blank" rel="noreferrer" className="mt-2 block truncate text-xs text-emerald-700 hover:underline dark:text-emerald-400">
-              {formatDetail(step.key, step.detail)} ↗
-            </a>
-          ) : (
-            <p className={`mt-2 truncate text-xs ${step.observed ? "text-slate-600 dark:text-slate-400" : "text-slate-400 dark:text-slate-600"}`}>
-              {formatDetail(step.key, step.detail)}
-            </p>
-          )}
-        </li>
-      ))}
+            <span className="min-w-0 flex-1">
+              <span className="flex flex-wrap items-baseline gap-x-2">
+                <span className={`text-small ${step.observed ? "font-medium text-ink" : "text-ink-muted"}`}>
+                  {step.label}
+                </span>
+                {isCurrent && (
+                  <span className="font-mono text-meta tracking-[0.06em] text-accent uppercase">
+                    current
+                  </span>
+                )}
+              </span>
+              {step.sourceUrl ? (
+                <SourceLink href={step.sourceUrl} className="mt-0.5 block font-mono text-meta break-all">
+                  {formatDetail(step.key, step.detail)}
+                </SourceLink>
+              ) : (
+                <span
+                  className={`mt-0.5 block font-mono text-meta break-all ${
+                    step.observed ? "text-ink-secondary" : "text-ink-faint"
+                  }`}
+                >
+                  {formatDetail(step.key, step.detail)}
+                </span>
+              )}
+            </span>
+          </li>
+        );
+      })}
     </ol>
   );
 }

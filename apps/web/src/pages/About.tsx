@@ -3,57 +3,48 @@ import { Prose } from "../components/Prose.tsx";
 
 export default function About() {
   return (
-    <Prose title="About Kernel Lens">
+    <Prose
+      title="About Kernel Lens"
+      marker="About"
+      lead="A discovery and interpretation layer over public Linux kernel discussion — lore.kernel.org remains the canonical archive."
+      updated="2026-07-24"
+    >
       <p>
-        Kernel Lens is an open-source kernel ecosystem observatory for teams that
-        build hardware products. It collects selected public conversations from{" "}
-        <a
-          className="underline decoration-slate-400 underline-offset-2"
-          href="https://lore.kernel.org/"
-          target="_blank"
-          rel="noreferrer"
-        >
+        Kernel Lens is an open-source kernel ecosystem observatory for teams that build
+        hardware products. It collects selected public conversations from{" "}
+        <a href="https://lore.kernel.org/" target="_blank" rel="noreferrer">
           lore.kernel.org
         </a>
-        , reconstructs patch series, and curates them by
-        vendor, subsystem, product surface, and integration stage.
+        , reconstructs patch series, and curates them by vendor, subsystem, product surface,
+        and integration stage.
       </p>
 
       <p>
-        Kernel Lens is not intended to replace lore.kernel.org. Lore remains the
-        canonical source and archive. Kernel Lens adds a discovery and
-        interpretation layer on top of it. The primary question is not simply
-        “what was posted?” but “what does this change mean for my hardware,
-        BSP, release plan, and integration work?”
+        Kernel Lens is not intended to replace lore.kernel.org. Lore remains the canonical
+        source and archive. The primary question here is not simply “what was posted?” but
+        “what does this change mean for my hardware, BSP, release plan, and integration
+        work?”
       </p>
 
-      <p className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
-        Kernel Lens is an independent project and is not affiliated with
-        kernel.org, the Linux Foundation, or the Linux kernel project.
-      </p>
-
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-        Who it's for
-      </h2>
       <p>
-        BSP and platform engineers, firmware and systems teams, robotics and
-        automotive developers, product planners, kernel engineers, and anyone
-        who needs reliable upstream visibility without following every mailing
-        list. No account is required.
+        Kernel Lens is an independent project and is not affiliated with kernel.org, the
+        Linux Foundation, or the Linux kernel project.
       </p>
 
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-        Status
-      </h2>
+      <h2>Who it's for</h2>
+      <p>
+        BSP and platform engineers, firmware and systems teams, robotics and automotive
+        developers, product planners, kernel engineers, and anyone who needs reliable
+        upstream visibility without following every mailing list. No account is required.
+      </p>
+
+      <h2>Status</h2>
       <p>
         Kernel Lens is in early development. Topic and vendor lenses, deterministic
-        product-impact mapping, patch-revision navigation, explicit review
-        evidence, integration-path records, search, and bounded evidence-linked
-        summaries are implemented. See{" "}
-        <Link className="underline decoration-slate-400 underline-offset-2" to="/about/methodology">
-          methodology
-        </Link>{" "}
-        for how indexing and summaries will work once ingestion is live.
+        product-impact mapping, patch-revision navigation, explicit review evidence,
+        integration-path records, search, and bounded evidence-linked summaries are
+        implemented. See <Link to="/about/methodology">methodology</Link> for how indexing
+        and summaries work.
       </p>
     </Prose>
   );

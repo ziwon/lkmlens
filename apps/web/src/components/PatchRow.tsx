@@ -1,68 +1,79 @@
 import { Link } from "react-router";
 import type { CurationPatch, PatchLifecycleStage } from "@lkmlens/shared";
+import { StatusTag, type TagTone } from "./StatusTag.tsx";
+import { formatDate, formatExact, formatRelative } from "../lib/format.ts";
 
-const stageLabels: Record<PatchLifecycleStage, string> = {
-  submitted: "Submitted",
-  "under-review": "Review evidence",
-  "maintainer-tree": "Maintainer tree",
-  mainline: "Mainline",
-  released: "Released",
-  "stable-backport": "Stable backport",
-  "android-common": "Android common",
+/**
+ * The default feed item is a row, not a card (DESIGN.md 9.4): status mark,
+ * subject, taxonomy, then mono evidence metadata on one line.
+ */
+
+const stage: Record<PatchLifecycleStage, { label: string; tone: TagTone }> = {
+  submitted: { label: "Submitted", tone: "neutral" },
+  "under-review": { label: "Review evidence", tone: "info" },
+  "maintainer-tree": { label: "Maintainer tree", tone: "info" },
+  mainline: { label: "Mainline", tone: "evidence" },
+  released: { label: "Released", tone: "evidence" },
+  "stable-backport": { label: "Stable backport", tone: "evidence" },
+  "android-common": { label: "Android common", tone: "evidence" },
 };
 
-function formatDate(value: string | null) {
-  if (!value) return "Date unavailable";
-  const date = new Date(value);
-  return Number.isNaN(date.valueOf()) ? value : new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(date);
+function reviewEvidence(patch: CurationPatch): string {
+  const parts: string[] = [];
+  if (patch.reviewedCount > 0) parts.push(`${patch.reviewedCount} reviewed-by`);
+  if (patch.ackedCount > 0) parts.push(`${patch.ackedCount} acked-by`);
+  return parts.length > 0 ? parts.join(" · ") : "no explicit review trailer";
 }
 
 export function PatchRow({ patch }: { patch: CurationPatch }) {
+  const step = stage[patch.lifecycleStage];
+  const taxonomy = [...patch.vendors, ...patch.topics];
+  const activity = patch.lastActivityAt ?? patch.firstPostedAt;
+
   return (
-    <article className="border-b border-slate-200 py-6 last:border-0 dark:border-slate-800">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-            <span className="inline-flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-400">
-              <span className="size-1.5 rounded-full bg-emerald-500" />
-              {stageLabels[patch.lifecycleStage]}
-            </span>
-            {patch.patchVersion != null && <span>v{patch.patchVersion}</span>}
-            <span>{formatDate(patch.firstPostedAt)}</span>
-          </div>
-          <h2 className="mt-2 text-base font-semibold leading-6 text-slate-950 dark:text-white">
-            <Link className="focus-ring rounded-sm hover:text-emerald-700 dark:hover:text-emerald-400" to={`/threads/${patch.threadId}`}>
-              {patch.subject}
-            </Link>
-          </h2>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            {patch.authorName ?? "Unknown author"}
-          </p>
-        </div>
-        <div className="flex shrink-0 gap-4 text-xs text-slate-500 dark:text-slate-400">
-          <span><strong className="font-semibold text-slate-800 dark:text-slate-200">{patch.reviewedCount}</strong> reviewed</span>
-          <span><strong className="font-semibold text-slate-800 dark:text-slate-200">{patch.ackedCount}</strong> acked</span>
-        </div>
+    <article className="group border-b border-border py-5 transition-colors hover:bg-surface-subtle">
+      <div className="flex items-start justify-between gap-4">
+        <StatusTag tone={step.tone}>{step.label}</StatusTag>
+        <span
+          className="shrink-0 font-mono text-meta text-ink-muted"
+          title={formatExact(activity)}
+        >
+          {formatRelative(activity) ?? formatDate(activity)}
+        </span>
       </div>
+
+      <h3 className="mt-2.5 text-body-lg font-medium text-ink">
+        <Link
+          to={`/threads/${patch.threadId}`}
+          className="focus-ring transition-colors hover:text-accent"
+        >
+          {patch.subject}
+        </Link>
+      </h3>
+
+      <p className="mt-1 text-small text-ink-muted">
+        {patch.authorName ?? "Unknown author"}
+        {taxonomy.length > 0 && <span aria-hidden="true"> · </span>}
+        {taxonomy.join(" · ")}
+      </p>
 
       {(patch.affectedLayers.length > 0 || patch.likelyStakeholders.length > 0) && (
-        <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-          <div>
-            <dt className="text-xs font-medium text-slate-500 dark:text-slate-500">Product surface</dt>
-            <dd className="mt-1 text-slate-700 dark:text-slate-300">{patch.affectedLayers.join(", ") || "Unclassified"}</dd>
-          </div>
-          <div>
-            <dt className="text-xs font-medium text-slate-500 dark:text-slate-500">Who should look</dt>
-            <dd className="mt-1 text-slate-700 dark:text-slate-300">{patch.likelyStakeholders.join(", ") || "Not mapped"}</dd>
-          </div>
-        </dl>
+        <p className="mt-2 max-w-[76ch] text-small text-ink-secondary">
+          {patch.affectedLayers.length > 0 && (
+            <>
+              Touches <span className="text-ink">{patch.affectedLayers.join(", ")}</span>.
+            </>
+          )}
+          {patch.likelyStakeholders.length > 0 && (
+            <> Likely owners: {patch.likelyStakeholders.join(", ")}.</>
+          )}
+        </p>
       )}
 
-      <div className="mt-4 flex flex-wrap gap-1.5">
-        {[...patch.vendors, ...patch.topics].map((label) => (
-          <span key={label} className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600 dark:bg-slate-900 dark:text-slate-400">{label}</span>
-        ))}
-      </div>
+      <p className="mt-3 font-mono text-meta text-ink-muted">
+        {patch.patchVersion != null && <>v{patch.patchVersion} · </>}
+        {formatDate(patch.firstPostedAt)} · {reviewEvidence(patch)}
+      </p>
     </article>
   );
 }

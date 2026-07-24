@@ -1,17 +1,153 @@
 @import "tailwindcss";
 
+/* Self-hosted Geist (DESIGN.md 4.1: no runtime third-party font request). */
+@import "@fontsource-variable/geist/index.css";
+@import "@fontsource-variable/geist-mono/index.css";
+
 /* Class-based dark mode: ThemeToggle toggles `.dark` on <html>, so `dark:`
    variants must key off that class rather than prefers-color-scheme alone. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
-}
+/* ---------------------------------------------------------------------------
+   Semantic color tokens (DESIGN.md 5). Components reference these by meaning
+   — `bg-surface`, `text-ink-muted`, `border-border` — never raw Slate/Emerald.
+   --------------------------------------------------------------------------- */
 
 :root {
-  color-scheme: light dark;
-  --signal-green: #059669;
+  color-scheme: light;
+
+  --canvas: #f5f6f2;
+  --surface: #ffffff;
+  --surface-subtle: #eef0eb;
+  --surface-strong: #e3e6df;
+
+  --ink: #101310;
+  --ink-secondary: #3f4540;
+  --ink-muted: #6c726d;
+  --ink-faint: #939993;
+
+  --border: #d8dcd5;
+  --border-strong: #b9bfb8;
+
+  --accent: #0b6b47;
+  --accent-hover: #07573a;
+  --accent-soft: #dff2e8;
+
+  --warning: #9a6200;
+  --warning-soft: #fff0c7;
+  --danger: #b42318;
+  --danger-soft: #fee4e2;
+  --info: #315f8c;
+  --info-soft: #e4edf6;
+
+  --overlay-shadow: 0 12px 32px rgb(16 19 16 / 0.1);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --canvas: #0b0d0b;
+  --surface: #111411;
+  --surface-subtle: #171b18;
+  --surface-strong: #202620;
+
+  --ink: #f3f5f1;
+  --ink-secondary: #c5cbc5;
+  --ink-muted: #929a93;
+  --ink-faint: #697169;
+
+  --border: #293029;
+  --border-strong: #424b43;
+
+  --accent: #63d59c;
+  --accent-hover: #82e4b3;
+  --accent-soft: #153b29;
+
+  --warning: #efbd5d;
+  --warning-soft: #3a2a10;
+  --danger: #ff8a80;
+  --danger-soft: #421b18;
+  --info: #91bce5;
+  --info-soft: #172d42;
+
+  --overlay-shadow: 0 12px 32px rgb(0 0 0 / 0.45);
+}
+
+/* `inline` keeps utilities pointing at the live custom property, so one
+   `bg-canvas` class resolves per theme instead of baking in the light value. */
+@theme inline {
+  --font-sans: "Geist Variable", "Geist", "Inter", ui-sans-serif, system-ui,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono Variable", "Geist Mono", "JetBrains Mono",
+    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-surface-strong: var(--surface-strong);
+
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+
+  /* Editorial type scale (DESIGN.md 4.3), fluid between the table's mobile
+     and desktop sizes rather than jumping at a breakpoint. */
+  --text-display: clamp(2.625rem, 1.55rem + 4.6vw, 4rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.035em;
+  --text-display--font-weight: 650;
+
+  --text-h1: clamp(2.25rem, 1.65rem + 2.6vw, 3rem);
+  --text-h1--line-height: 1.06;
+  --text-h1--letter-spacing: -0.035em;
+  --text-h1--font-weight: 650;
+
+  --text-h2: clamp(1.6875rem, 1.42rem + 1.15vw, 2rem);
+  --text-h2--line-height: 1.14;
+  --text-h2--letter-spacing: -0.025em;
+  --text-h2--font-weight: 620;
+
+  --text-h3: clamp(1.25rem, 1.19rem + 0.26vw, 1.375rem);
+  --text-h3--line-height: 1.27;
+  --text-h3--letter-spacing: -0.015em;
+  --text-h3--font-weight: 600;
+
+  --text-body-lg: clamp(1.0625rem, 1.04rem + 0.13vw, 1.125rem);
+  --text-body-lg--line-height: 1.62;
+
+  --text-body: 0.9688rem;
+  --text-body--line-height: 1.6;
+
+  --text-small: 0.8438rem;
+  --text-small--line-height: 1.55;
+  --text-small--font-weight: 450;
+
+  --text-meta: 0.7188rem;
+  --text-meta--line-height: 1.4;
+  --text-meta--font-weight: 500;
+
+  /* Small, precise radii (DESIGN.md 7.1). */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  --shadow-overlay: var(--overlay-shadow);
 }
 
 html,
@@ -21,19 +157,142 @@ body,
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+  @apply bg-canvas text-ink antialiased;
+  font-synthesis-weight: none;
+}
+
+/* Mono already ships tabular figures; `.tabular` covers sans-rendered counts,
+   versions, and dates that need to line up column-wise (DESIGN.md 15). */
+.tabular,
+code,
+kbd,
+pre,
+samp {
+  font-variant-numeric: tabular-nums;
 }
 
 ::selection {
-  @apply bg-emerald-500/30;
+  background-color: var(--accent-soft);
+  color: var(--ink);
 }
 
+/* Matched search terms are emphasised with weight and a hairline underline
+   rather than a bright marker-yellow block (DESIGN.md 10.2). */
+.snippet mark {
+  background-color: transparent;
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: inset 0 -1px 0 0 var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Long-form editorial body (DESIGN.md 10.6). Pages inside <Prose> write plain
+   semantic markup; numbering is a CSS counter so headings stay unadorned.
+   --------------------------------------------------------------------------- */
+
+.prose-content {
+  counter-reset: prose-section;
+  color: var(--ink-secondary);
+  font-size: var(--text-body);
+  line-height: 1.72;
+}
+
+.prose-content > * + * {
+  margin-top: 1.25rem;
+}
+
+.prose-content p,
+.prose-content ul,
+.prose-content ol {
+  max-width: 72ch;
+}
+
+.prose-content h2 {
+  margin-top: 3rem;
+  color: var(--ink);
+  font-size: var(--text-h3);
+  line-height: var(--text-h3--line-height);
+  letter-spacing: var(--text-h3--letter-spacing);
+  font-weight: 600;
+}
+
+.prose-content h2::before {
+  counter-increment: prose-section;
+  content: counter(prose-section, decimal-leading-zero);
+  margin-right: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+}
+
+.prose-content h3 {
+  margin-top: 2rem;
+  color: var(--ink);
+  font-size: var(--text-body-lg);
+  font-weight: 600;
+}
+
+.prose-content ul,
+.prose-content ol {
+  padding-left: 1.5rem;
+}
+
+.prose-content ul {
+  list-style: disc;
+}
+
+.prose-content ol {
+  list-style: decimal;
+}
+
+.prose-content li + li {
+  margin-top: 0.375rem;
+}
+
+/* Unclassed links get the editorial treatment; anything carrying its own
+   className (a button, a tag) opts out rather than fighting specificity. */
+.prose-content a:not([class]) {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--accent) 35%, transparent);
+  text-underline-offset: 3px;
+}
+
+.prose-content a:not([class]):hover {
+  text-decoration-color: var(--accent);
+}
+
+.prose-content code {
+  padding: 0.1em 0.35em;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-subtle);
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  color: var(--ink);
+}
+
+.prose-content strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* DESIGN.md 5.4: a 2px accent outline at 2px offset, visible in both themes. */
 .focus-ring {
   @apply outline-none;
 }
 
-.focus-ring:focus-visible {
-  @apply ring-2 ring-emerald-500/70 ring-offset-2 ring-offset-white dark:ring-offset-slate-950;
+.focus-ring:focus-visible,
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
 }
 
 @media (prefers-reduced-motion: reduce) {

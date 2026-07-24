@@ -2,13 +2,13 @@ import { Prose } from "../components/Prose.tsx";
 
 export default function Terms() {
   return (
-    <Prose title="Terms">
-      <p className="text-sm text-slate-500 dark:text-slate-400">
-        This is an early, minimal terms notice for an early-stage project. It
-        will be expanded as the service grows.
-      </p>
-
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+    <Prose
+      title="Terms"
+      marker="Legal"
+      lead="An early, minimal terms notice for an early-stage project. It will be expanded as the service grows."
+      updated="2026-07-24"
+    >
+      <h2>
         What Kernel Lens is
       </h2>
       <p>
@@ -18,7 +18,7 @@ export default function Terms() {
         kernel.org, the Linux Foundation, or the Linux kernel project.
       </p>
 
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+      <h2>
         No warranty
       </h2>
       <p>
@@ -30,7 +30,7 @@ export default function Terms() {
         cited. Always verify against the canonical lore.kernel.org source.
       </p>
 
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+      <h2>
         Acceptable use
       </h2>
       <p>
@@ -40,7 +40,7 @@ export default function Terms() {
         degrades service for other users or for lore.kernel.org itself.
       </p>
 
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+      <h2>
         Changes
       </h2>
       <p>

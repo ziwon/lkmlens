@@ -2,14 +2,13 @@ import { Prose } from "../components/Prose.tsx";
 
 export default function Privacy() {
   return (
-    <Prose title="Privacy">
-      <p className="text-sm text-slate-500 dark:text-slate-400">
-        This is an early, minimal privacy notice for an early-stage project.
-        It will be expanded as Kernel Lens adds accounts, subscriptions, or other
-        features that touch personal data.
-      </p>
-
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+    <Prose
+      title="Privacy"
+      marker="Legal"
+      lead="An early, minimal privacy notice. It will be expanded as Kernel Lens adds accounts, subscriptions, or other features that touch personal data."
+      updated="2026-07-24"
+    >
+      <h2>
         What Kernel Lens indexes
       </h2>
       <p>
@@ -21,7 +20,7 @@ export default function Privacy() {
         message rather than to a raw address directory.
       </p>
 
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+      <h2>
         What Kernel Lens does not require
       </h2>
       <p>
@@ -31,7 +30,7 @@ export default function Privacy() {
         hosting provider, Cloudflare).
       </p>
 
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+      <h2>
         Server logs and analytics
       </h2>
       <p>
@@ -41,15 +40,13 @@ export default function Privacy() {
         analytics or advertising trackers.
       </p>
 
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+      <h2>
         Corrections and removal requests
       </h2>
       <p>
         If you are named in an indexed message and want a correction or
         removal request reviewed, please open an issue on{" "}
-        <a
-          className="underline decoration-slate-400 underline-offset-2"
-          href="https://github.com/ziwon/lkmlens/issues"
+        <a          href="https://github.com/ziwon/lkmlens/issues"
           target="_blank"
           rel="noreferrer"
         >

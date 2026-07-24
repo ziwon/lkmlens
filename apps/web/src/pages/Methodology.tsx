@@ -2,8 +2,13 @@ import { Prose } from "../components/Prose.tsx";
 
 export default function Methodology() {
   return (
-    <Prose title="Methodology">
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+    <Prose
+      title="Methodology"
+      marker="Methodology"
+      lead="What Kernel Lens observes, how it reconstructs and classifies it, and what it deliberately does not claim."
+      updated="2026-07-24"
+    >
+      <h2>
         Where the data comes from
       </h2>
       <p>
@@ -13,7 +18,7 @@ export default function Methodology() {
         never presents itself as the canonical archive — lore.kernel.org is.
       </p>
 
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+      <h2>
         How threads are reconstructed
       </h2>
       <p>
@@ -26,7 +31,7 @@ export default function Methodology() {
         available even when reconstruction is imperfect.
       </p>
 
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+      <h2>
         How topics are classified
       </h2>
       <p>
@@ -41,7 +46,7 @@ export default function Methodology() {
         get it wrong.
       </p>
 
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+      <h2>
         How vendor and product patches are curated
       </h2>
       <p>
@@ -53,7 +58,7 @@ export default function Methodology() {
         private BSP inclusion, or technical correctness.
       </p>
 
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+      <h2>
         How integration status is determined
       </h2>
       <p>
@@ -66,7 +71,7 @@ export default function Methodology() {
         not mean the patch was rejected or is absent from a private vendor tree.
       </p>
 
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+      <h2>
         How summaries are generated
       </h2>
       <p>
@@ -87,7 +92,7 @@ export default function Methodology() {
         follows different data-use terms.
       </p>
 
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+      <h2>
         What AI can get wrong
       </h2>
       <p>
@@ -98,15 +103,13 @@ export default function Methodology() {
         original messages.
       </p>
 
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+      <h2>
         How to report errors
       </h2>
       <p>
         If a thread reconstruction, topic assignment, or summary looks wrong,
         please open an issue on{" "}
-        <a
-          className="underline decoration-slate-400 underline-offset-2"
-          href="https://github.com/ziwon/lkmlens/issues"
+        <a          href="https://github.com/ziwon/lkmlens/issues"
           target="_blank"
           rel="noreferrer"
         >
