@@ -22,6 +22,12 @@ export interface RuleSeed {
   stakeholders: string[];
 }
 
+/** Vendor channel copy, kept alongside the rules it describes. */
+export interface VendorProfileSeed {
+  vendor: string;
+  description: string;
+}
+
 interface VendorAreaYaml {
   name: string;
   layer?: string;
@@ -98,6 +104,23 @@ export function loadVendorRules(dir: string): RuleSeed[] {
   }
 
   return rules;
+}
+
+/**
+ * Reads the per-vendor `description` from the same YAML that defines the
+ * rules. Vendors without one are skipped rather than given filler copy — the
+ * UI omits the line instead of repeating a generic sentence.
+ */
+export function loadVendorProfiles(dir: string): VendorProfileSeed[] {
+  const profiles: VendorProfileSeed[] = [];
+
+  for (const { file, data } of readYamlFiles<VendorYaml>(dir)) {
+    if (!data.vendor) throw new Error(`${file}: expected "vendor"`);
+    const description = data.description?.trim().replace(/\s+/g, " ");
+    if (description) profiles.push({ vendor: data.vendor, description });
+  }
+
+  return profiles;
 }
 
 export function loadSubsystemRules(dir: string): RuleSeed[] {

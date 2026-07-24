@@ -6,10 +6,7 @@
 # Some paths have been observed in indexed lore.kernel.org data. Remaining
 # paths should be reviewed as Tegra- and Jetson-focused coverage expands.
 vendor: NVIDIA
-description: >
-  Jetson embedded compute platform, Tegra SoCs, and the open GPU driver
-  stack, including platform, graphics, media, IOMMU, PCIe, and power
-  management integration areas.
+description: "Open GPU drivers (nouveau, nova) and Tegra/Jetson platforms."
 areas:
   - name: Tegra SoC platform
     file_patterns:

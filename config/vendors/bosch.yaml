@@ -2,11 +2,11 @@
 #
 # Covers Bosch-originated CAN controller IP and Bosch Sensortec IMU and
 # environmental sensor families represented in the Linux kernel tree.
+#
+# M_CAN is widely licensed beyond Bosch parts, and the Sensortec BMI/BMP/BME
+# families are common in robotics sensor stacks.
 vendor: Bosch
-description: >
-  CAN controller IP (M_CAN, widely licensed) and Bosch Sensortec
-  IMU/environmental sensors (BMI/BMP/BME families) used across robotics
-  and automotive sensor stacks.
+description: "M_CAN controllers and Sensortec IMU and environmental sensors."
 areas:
   - name: CAN (M_CAN / classic controllers)
     file_patterns:

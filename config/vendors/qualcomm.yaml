@@ -7,10 +7,7 @@
 # The remoteproc/qcom_* path is included for forward coverage and should be
 # reviewed as remoteproc-focused data becomes available.
 vendor: Qualcomm
-description: >
-  Snapdragon/QCS SoC support, the Hexagon DSP <-> Linux communication
-  stack (remoteproc/rpmsg/QRTR), and the Adreno GPU driver, including
-  platform, media, and power-management integration areas.
+description: "Snapdragon and QCS SoCs, the Adreno GPU, and DSP offload."
 areas:
   - name: SoC platform support
     file_patterns:

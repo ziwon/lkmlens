@@ -8,10 +8,7 @@
 # and net/can/flexcan map to established kernel paths. Filename-level globs
 # should be reviewed as additional i.MX-focused data becomes available.
 vendor: NXP
-description: >
-  i.MX application processors and industrial/automotive MCU lines. Common
-  integration areas include controller platforms, sensor hubs, networking,
-  and board-level peripherals.
+description: "i.MX SoCs for industrial and automotive controllers."
 areas:
   - name: i.MX SoC platform
     file_patterns:

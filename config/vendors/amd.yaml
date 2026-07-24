@@ -1,10 +1,9 @@
 # AMD kernel contribution watchlist.
 #
-# drivers/gpu/drm/amd/** has been observed in the indexed dri-devel corpus.
+# drivers/gpu/drm/amd/** has been observed in the indexed dri-devel corpus,
+# where amdgpu is one of the largest single sources of traffic.
 vendor: AMD
-description: >
-  AMD's open GPU driver stack (amdgpu) is one of the largest single
-  contributors to dri-devel traffic.
+description: "The open amdgpu driver stack."
 areas:
   - name: GPU driver / display pipeline
     file_patterns:

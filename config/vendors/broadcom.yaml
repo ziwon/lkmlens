@@ -1,8 +1,9 @@
 # Broadcom kernel contribution watchlist.
+#
+# VideoCore covers the large population of robotics projects built on
+# Raspberry Pi compute modules.
 vendor: Broadcom
-description: >
-  VideoCore GPU (Raspberry Pi SoCs) -- relevant to the large population
-  of robotics projects built on Raspberry Pi compute modules.
+description: "VideoCore GPU on Raspberry Pi SoCs."
 areas:
   - name: GPU driver / display pipeline (VideoCore)
     file_patterns:

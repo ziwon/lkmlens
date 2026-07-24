@@ -8,9 +8,7 @@
 # The IIO patterns below are representative rather than exhaustive and should
 # be expanded as coverage requirements are validated.
 vendor: Texas Instruments
-description: >
-  Sitara/OMAP ARM SoCs and a very large analog/sensor IC portfolio
-  (ADCs, DACs) used across industrial and robotics sensor hubs.
+description: "Sitara, OMAP, and K3 SoCs, plus analog and sensor ICs."
 areas:
   - name: SoC platform (Sitara/OMAP/K3)
     file_patterns:

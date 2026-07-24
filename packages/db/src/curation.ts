@@ -15,6 +15,7 @@ interface ChannelRow {
 
 interface VendorChannelRow {
   vendor: string;
+  description: string | null;
   layers_json: string;
   patch_count: number;
 }
@@ -60,10 +61,11 @@ export async function listCurationChannels(db: D1Database): Promise<CurationChan
        GROUP BY tp.id ORDER BY tp.display_order ASC, tp.name ASC`,
     ).all<ChannelRow>(),
     db.prepare(
-      `SELECT rules.vendor, json_group_array(DISTINCT rules.layer) AS layers_json,
+      `SELECT rules.vendor, vp.description, json_group_array(DISTINCT rules.layer) AS layers_json,
               COUNT(DISTINCT ti.thread_id) AS patch_count
        FROM (SELECT DISTINCT vendor, layer FROM impact_rules
              WHERE enabled = 1 AND vendor IS NOT NULL) rules
+       LEFT JOIN vendor_profiles vp ON vp.vendor = rules.vendor
        LEFT JOIN thread_impact ti
          ON EXISTS (SELECT 1 FROM json_each(ti.vendors_json) WHERE value = rules.vendor)
        GROUP BY rules.vendor ORDER BY rules.vendor ASC`,
@@ -75,7 +77,10 @@ export async function listCurationChannels(db: D1Database): Promise<CurationChan
       kind: "vendor" as const,
       slug: slugifyVendor(row.vendor),
       name: row.vendor,
-      description: `Public kernel changes matched to ${row.vendor} hardware and platform integration areas.`,
+      // Curated copy from config/vendors/*.yaml. A vendor named only by a
+      // rule (no watchlist file) has no description, and the UI omits the
+      // line rather than repeating filler across every card.
+      description: row.description,
       patchCount: row.patch_count,
       trackedAreas: JSON.parse(row.layers_json) as string[],
     };

@@ -4,9 +4,7 @@
 # industrial controllers. Vendor-specific rules are kept in a separate file
 # so they can be reviewed and maintained independently.
 vendor: Renesas
-description: >
-  R-Car and RZ ARM SoCs, common in automotive and industrial control
-  platforms.
+description: "R-Car and RZ SoCs for automotive and industrial platforms."
 areas:
   - name: R-Car / RZ SoC platform
     file_patterns:

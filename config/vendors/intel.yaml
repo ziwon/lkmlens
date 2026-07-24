@@ -2,11 +2,10 @@
 #
 # The x86 architecture tree is shared across vendors and is tracked by
 # config/subsystems/arch-x86.yaml. This file is limited to Intel-specific
-# drivers and architecture paths.
+# drivers and architecture paths: NIC, WiFi, PCIe device management,
+# perf-counter, and SGX paths alongside the graphics stack.
 vendor: Intel
-description: >
-  x86 platform-adjacent silicon (NICs, WiFi, PCIe device management,
-  perf counters, SGX) commonly found in industrial control PCs and AMRs.
+description: "i915 and Xe graphics, Ethernet, WiFi, and x86 platform support."
 areas:
   - name: GPU and display (i915 / Xe)
     file_patterns:
